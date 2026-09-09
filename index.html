@@ -8,35 +8,113 @@
 </head>
 <body>
 
-    <!-- Верхня панель з монетками та кнопкою меню -->
+    <!-- Верхня панель -->
     <header class="top-bar">
         <div class="coins-container">
             Монети: <span id="coinsCount">0</span>
         </div>
-        <button id="shopToggleBtn" class="shop-btn">⚙️ Покращення</button>
+        <div class="nav-buttons">
+            <button id="shopToggleBtn" class="nav-btn">⚙️ Покращення</button>
+            <button id="musicToggleBtn" class="nav-btn">🎵 Музика</button>
+            <button id="storiesToggleBtn" class="nav-btn">📜 Історії</button>
+        </div>
     </header>
 
-    <!-- Випадаюче меню покращень -->
-    <div id="shopMenu" class="shop-menu hidden">
+    <!-- 1. Випадаюче меню покращень -->
+    <div id="shopMenu" class="dropdown-menu hidden">
         <h2>Покращення</h2>
+        
+        <!-- Існуюче покращення кліку -->
         <div class="shop-item">
             <div class="item-info">
                 <h3>+1 до кліку</h3>
-                <p>Збільшує кількість монет за кожен клік</p>
+                <p>Збільшує силу кліку</p>
             </div>
             <button id="buyUpgradeBtn" class="buy-btn" disabled>
                 Купити (<span id="upgradeCost">10</span> мон.)
             </button>
         </div>
+
+        <!-- Нове: Батрачок -->
+        <div class="shop-item">
+            <div class="item-info">
+                <h3>Батрачок</h3>
+                <p>+1 монета кожні 1.5 сек</p>
+            </div>
+            <button id="buyWorkerBtn" class="buy-btn" disabled>
+                Купити (100 мон.)
+            </button>
+        </div>
+
+        <!-- Нове: Фінгер смерті -->
+        <div class="shop-item">
+            <div class="item-info">
+                <h3>Фінгер смерті</h3>
+                <p>Активація здібності (Бонус: +<span id="fingerBonusText">20</span> к ушкодженню)</p>
+            </div>
+            <button id="buyFingerBtn" class="buy-btn" disabled>
+                Купити (<span id="fingerCost">1500</span> мон.)
+            </button>
+        </div>
     </div>
 
-    <!-- Центральна зона з кнопкою-картинкою -->
+    <!-- 2. Випадаюче меню музики -->
+    <div id="musicMenu" class="dropdown-menu hidden">
+        <h2>Музичне меню</h2>
+        <div id="musicList"></div>
+        <button id="offMusicBtn" class="buy-btn off-music-btn" disabled>
+            Off music (10000 мон.)
+        </button>
+    </div>
+
+    <!-- 3. Випадаюче меню історій -->
+    <div id="storiesMenu" class="dropdown-menu hidden">
+        <h2>Магазин історій</h2>
+        <div class="shop-item">
+            <div class="item-info">
+                <h3>Піратська шляпа</h3>
+                <p>Відкриває секретну історію</p>
+            </div>
+            <button id="buyHatStoryBtn" class="buy-btn" disabled>
+                Купити (1000 мон.)
+            </button>
+        </div>
+    </div>
+
+    <!-- Модальне вікно для читання історії -->
+    <div id="storyModal" class="modal hidden">
+        <div class="modal-content">
+            <span id="closeStoryModal" class="close-btn">&times;</span>
+            <h2 id="storyTitle">Назва історії</h2>
+            <div id="storyText" class="story-body"></div>
+        </div>
+    </div>
+
+    <!-- Центральна зона з мобом та ХП -->
     <main class="click-area">
-        <img id="clickBtn" src="clickStartImg.jfif" alt="Клік!" class="click-img">
+        <div class="mob-container">
+            <h3 id="mobName">Істота</h3>
+            <img id="clickBtn" src="clickStartImg.jpg" alt="Моб" class="click-img">
+            
+            <!-- Шкала ХП -->
+            <div class="hp-bar-container">
+                <div id="hpBarFill" class="hp-bar-fill"></div>
+                <span id="hpText" class="hp-text">10 / 10</span>
+            </div>
+        </div>
     </main>
 
-    <!-- Звук кліку -->
+    <!-- Нижній блок активних здібностей -->
+    <footer class="abilities-bar">
+        <button id="fingerAbilityBtn" class="ability-btn hidden" disabled>
+            <img src="finger.jpg" alt="Finger" class="ability-img">
+            <span id="fingerCooldown">ГОТОВО</span>
+        </button>
+    </footer>
+
+    <!-- Аудіоелементи -->
     <audio id="clickSound" src="clickStandartSound.mp3" preload="auto"></audio>
+    <audio id="bgMusic" loop></audio>
 
     <script src="script.js"></script>
 </body>
