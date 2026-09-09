@@ -286,3 +286,22 @@ body {
     border-radius: 6px;
     object-fit: cover;
 }
+
+
+.info-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stats-container {
+    font-size: 13px;
+    color: #4ecca3;
+    display: flex;
+    gap: 12px;
+}
+
+.stats-container span {
+    font-weight: bold;
+    color: #ffffff;
+}
