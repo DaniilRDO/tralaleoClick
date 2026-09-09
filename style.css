@@ -3,7 +3,7 @@
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
-    user-select: none; /* Забороняємо виділення тексту при частих кліках */
+    user-select: none;
 }
 
 body {
@@ -19,59 +19,67 @@ body {
 /* Верхня панель */
 .top-bar {
     width: 100%;
-    max-width: 500px;
-    padding: 20px;
+    max-width: 600px;
+    padding: 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     background: #16213e;
     border-bottom-left-radius: 15px;
     border-bottom-right-radius: 15px;
+    gap: 10px;
 }
 
 .coins-container {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
     color: #f1c40f;
 }
 
-.shop-btn {
+.nav-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.nav-btn {
     background: #0f3460;
     color: white;
     border: none;
-    padding: 10px 15px;
-    font-size: 16px;
+    padding: 8px 12px;
+    font-size: 14px;
     border-radius: 8px;
     cursor: pointer;
     transition: background 0.2s;
 }
 
-.shop-btn:hover {
+.nav-btn:hover {
     background: #e94560;
 }
 
-/* Випадаюче меню */
-.shop-menu {
+/* Випадаючі меню */
+.dropdown-menu {
     position: absolute;
-    top: 80px;
+    top: 75px;
     width: 90%;
-    max-width: 400px;
+    max-width: 450px;
     background: #16213e;
     border: 2px solid #0f3460;
     border-radius: 12px;
     padding: 15px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     z-index: 10;
+    max-height: 70vh;
+    overflow-y: auto;
 }
 
-.shop-menu.hidden {
+.dropdown-menu.hidden {
     display: none;
 }
 
-.shop-menu h2 {
+.dropdown-menu h2 {
     text-align: center;
     margin-bottom: 15px;
-    font-size: 20px;
+    font-size: 18px;
 }
 
 .shop-item {
@@ -81,10 +89,11 @@ body {
     background: #0f3460;
     padding: 10px;
     border-radius: 8px;
+    margin-bottom: 8px;
 }
 
 .item-info h3 {
-    font-size: 16px;
+    font-size: 15px;
 }
 
 .item-info p {
@@ -108,7 +117,63 @@ body {
     opacity: 0.6;
 }
 
-/* Центральна кнопка */
+.off-music-btn {
+    width: 100%;
+    margin-top: 10px;
+    background: #c0392b;
+}
+
+/* Модальне вікно для історій */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: #16213e;
+    padding: 25px;
+    border-radius: 12px;
+    width: 85%;
+    max-width: 500px;
+    position: relative;
+    border: 2px solid #e94560;
+}
+
+.close-btn {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #aaa;
+}
+
+.close-btn:hover {
+    color: #fff;
+}
+
+.story-body {
+    margin-top: 15px;
+    line-height: 1.5;
+    max-height: 300px;
+    overflow-y: auto;
+    font-size: 14px;
+    color: #ddd;
+}
+
+/* Центральна кнопка моба та ХП */
 .click-area {
     flex: 1;
     display: flex;
@@ -116,9 +181,16 @@ body {
     align-items: center;
 }
 
+.mob-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
 .click-img {
-    width: 200px;
-    height: 200px;
+    width: 180px;
+    height: 180px;
     object-fit: cover;
     border-radius: 50%;
     cursor: pointer;
@@ -126,7 +198,72 @@ body {
     transition: transform 0.05s ease;
 }
 
-/* Эфект натискання */
 .click-img:active {
     transform: scale(0.92);
+}
+
+/* Шкала ХП */
+.hp-bar-container {
+    width: 220px;
+    height: 22px;
+    background: #333;
+    border-radius: 11px;
+    overflow: hidden;
+    position: relative;
+    border: 2px solid #0f3460;
+}
+
+.hp-bar-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #e74c3c, #c0392b);
+    transition: width 0.1s linear;
+}
+
+.hp-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px #000;
+}
+
+/* Нижня панель здібностей */
+.abilities-bar {
+    padding: 15px;
+}
+
+.ability-btn {
+    background: #16213e;
+    border: 2px solid #e94560;
+    border-radius: 10px;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    color: white;
+}
+
+.ability-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #555;
+}
+
+.ability-btn.hidden {
+    display: none;
+}
+
+.ability-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
 }
