@@ -1,0 +1,132 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    user-select: none; /* Забороняємо виділення тексту при частих кліках */
+}
+
+body {
+    background-color: #1a1a2e;
+    color: #ffffff;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* Верхня панель */
+.top-bar {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #16213e;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+.coins-container {
+    font-size: 24px;
+    font-weight: bold;
+    color: #f1c40f;
+}
+
+.shop-btn {
+    background: #0f3460;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.shop-btn:hover {
+    background: #e94560;
+}
+
+/* Випадаюче меню */
+.shop-menu {
+    position: absolute;
+    top: 80px;
+    width: 90%;
+    max-width: 400px;
+    background: #16213e;
+    border: 2px solid #0f3460;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    z-index: 10;
+}
+
+.shop-menu.hidden {
+    display: none;
+}
+
+.shop-menu h2 {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 20px;
+}
+
+.shop-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0f3460;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.item-info h3 {
+    font-size: 16px;
+}
+
+.item-info p {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.buy-btn {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.buy-btn:disabled {
+    background: #555;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Центральна кнопка */
+.click-area {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.click-img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(233, 69, 96, 0.4);
+    transition: transform 0.05s ease;
+}
+
+/* Эфект натискання */
+.click-img:active {
+    transform: scale(0.92);
+}
