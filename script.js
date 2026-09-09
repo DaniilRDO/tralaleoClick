@@ -259,6 +259,31 @@ buyWorkerBtn.addEventListener('click', () => {
     }
 });
 
+function buyBatrachok() {
+    // Перевіряємо, чи вистачає монет/балів
+    if (score >= batrachokCost) {
+        score -= batrachokCost; // Списуємо ціну
+        batrachokCount++;       // Збільшуємо кількість батрачків
+
+        // Опціонально: збільшуємо ціну наступного Батрачка (наприклад, на 15%)
+        // batrachokCost = Math.floor(batrachokCost * 1.15);
+
+        // Оновлюємо відображення на сторінці
+        updateUI();
+    } else {
+        alert("Недостатньо монет!");
+    }
+}
+
+setInterval(() => {
+    // Кожен Батрачок дає +1 (batrachokPower) за секунду
+    let passiveGain = batrachokCount * batrachokPower;
+    
+    score += passiveGain;
+    
+    updateUI();
+}, 1000); // 1000 мс = 1 секунда
+
 // Пасивний дохід Батрачка
 setInterval(() => {
     if (workerCount > 0) {
