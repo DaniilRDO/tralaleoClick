@@ -1,15 +1,15 @@
 // --- Налаштування мобів ---
 const mobsConfig = [
-    { name: "Моб 1", maxHp: 10, image: "clickStartImg.jpg" },
-    { name: "Моб 2", maxHp: 50, image: "clickStartImg.jpg" },
-    { name: "Моб 3", maxHp: 100, image: "clickStartImg.jpg" }
+    { name: "Моб 1", maxHp: 10, image: "clickStartImg.jfif" },
+    { name: "Моб 2", maxHp: 50, image: "clickStartImg.jfif" },
+    { name: "Моб 3", maxHp: 100, image: "clickStartImg.jfif" }
 ];
 
 // --- Музичний список ---
 const musicList = [
     { id: 'tuntun', title: 'Tun Tun Tsahur', cost: 500, file: 'tuntunTsahur.mp3' },
-    { id: 'family', title: 'Family Track', cost: 2000, file: 'family.mp3' },
-    { id: 'freak', title: 'Freak Sound', cost: 4000, file: 'freak.mp3' }
+    { id: 'family', title: 'Family Track', cost: 2000, file: 'family.MP3' },
+    { id: 'freak', title: 'Freak Sound', cost: 4000, file: 'freak.ogg' }
 ];
 
 // --- Збережені або початкові значення ---
