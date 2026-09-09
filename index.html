@@ -9,29 +9,28 @@
 <body>
 
     <!-- Верхня панель -->
-   <header class="top-bar">
-    <div class="info-block">
-        <div class="coins-container">
-            Монети: <span id="coinsCount">0</span>
+    <header class="top-bar">
+        <div class="info-block">
+            <div class="coins-container">
+                Монети: <span id="coinsCount">0</span>
+            </div>
+            <div class="stats-container">
+                <div>Сила кліку: <span id="clickPowerText">1</span></div>
+                <div>Пасивний: <span id="passiveIncomeText">0</span>/сек</div>
+            </div>
         </div>
-        <div class="stats-container">
-            <div>Сила кліку: <span id="clickPowerText">1</span></div>
-            <div>Пасивний дохід: <span id="passiveIncomeText">0</span>/сек</div>
+        <div class="nav-buttons">
+            <button id="shopToggleBtn" class="nav-btn">⚙️ Покращення</button>
+            <button id="musicToggleBtn" class="nav-btn">🎵 Музика</button>
+            <button id="storiesToggleBtn" class="nav-btn">📜 Історії</button>
+            <button id="resetProgressBtn" class="reset-btn">🗑️ Скинути</button>
         </div>
-    </div>
-    <div class="nav-buttons">
-        <button id="shopToggleBtn" class="nav-btn">⚙️ Покращення</button>
-        <button id="musicToggleBtn" class="nav-btn">🎵 Музика</button>
-        <button id="storiesToggleBtn" class="nav-btn">📜 Історії</button>
-        <button id="resetProgressBtn" class="reset-btn">🗑️ Скинути</button>
-    </div>
-</header>
+    </header>
 
-    <!-- 1. Випадаюче меню покращень -->
+    <!-- 1. Меню покращень -->
     <div id="shopMenu" class="dropdown-menu hidden">
         <h2>Покращення</h2>
         
-        <!-- Існуюче покращення кліку -->
         <div class="shop-item">
             <div class="item-info">
                 <h3>+1 до кліку</h3>
@@ -42,22 +41,20 @@
             </button>
         </div>
 
-        <!-- Нове: Батрачок -->
         <div class="shop-item">
             <div class="item-info">
-                <h3>Батрачок</h3>
-                <p>+1 монета кожні 1.5 сек</p>
+                <h3>Батрачок (<span id="workerCountText">0</span>)</h3>
+                <p>+1 монета за кожні 1.5 сек</p>
             </div>
             <button id="buyWorkerBtn" class="buy-btn" disabled>
-                Купити (100 мон.)
+                Купити (<span id="workerCostText">100</span> мон.)
             </button>
         </div>
 
-        <!-- Нове: Фінгер смерті -->
         <div class="shop-item">
             <div class="item-info">
                 <h3>Фінгер смерті</h3>
-                <p>Активація здібності (Бонус: +<span id="fingerBonusText">20</span> к ушкодженню)</p>
+                <p>Активація здібності (Бонус: +<span id="fingerBonusText">20</span>)</p>
             </div>
             <button id="buyFingerBtn" class="buy-btn" disabled>
                 Купити (<span id="fingerCost">1500</span> мон.)
@@ -65,7 +62,7 @@
         </div>
     </div>
 
-    <!-- 2. Випадаюче меню музики -->
+    <!-- 2. Меню музики -->
     <div id="musicMenu" class="dropdown-menu hidden">
         <h2>Музичне меню</h2>
         <div id="musicList"></div>
@@ -74,7 +71,7 @@
         </button>
     </div>
 
-    <!-- 3. Випадаюче меню історій -->
+    <!-- 3. Меню історій -->
     <div id="storiesMenu" class="dropdown-menu hidden">
         <h2>Магазин історій</h2>
         <div class="shop-item">
@@ -88,7 +85,7 @@
         </div>
     </div>
 
-    <!-- Модальне вікно для читання історії -->
+    <!-- Модальне вікно -->
     <div id="storyModal" class="modal hidden">
         <div class="modal-content">
             <span id="closeStoryModal" class="close-btn">&times;</span>
@@ -97,13 +94,12 @@
         </div>
     </div>
 
-    <!-- Центральна зона з мобом та ХП -->
+    <!-- Центральна зона -->
     <main class="click-area">
         <div class="mob-container">
             <h3 id="mobName">Істота</h3>
             <img id="clickBtn" src="clickStartImg.jpg" alt="Моб" class="click-img">
             
-            <!-- Шкала ХП -->
             <div class="hp-bar-container">
                 <div id="hpBarFill" class="hp-bar-fill"></div>
                 <span id="hpText" class="hp-text">10 / 10</span>
@@ -111,15 +107,14 @@
         </div>
     </main>
 
-    <!-- Нижній блок активних здібностей -->
+    <!-- Панель здібностей -->
     <footer class="abilities-bar">
-        <button id="fingerAbilityBtn" class="ability-btn hidden" disabled>
-            <img src="finger.jfif" alt="Finger" class="ability-img">
+        <button id="fingerAbilityBtn" class="ability-btn hidden">
+            <img src="finger.jpg" alt="Finger" class="ability-img" onerror="this.src='https://via.placeholder.com/40'">
             <span id="fingerCooldown">ГОТОВО</span>
         </button>
     </footer>
 
-    <!-- Аудіоелементи -->
     <audio id="clickSound" src="clickStandartSound.mp3" preload="auto"></audio>
     <audio id="bgMusic" loop></audio>
 
