@@ -9,9 +9,15 @@
 <body>
 
     <!-- Верхня панель -->
-    <header class="top-bar">
-    <div class="coins-container">
-        Монети: <span id="coinsCount">0</span>
+   <header class="top-bar">
+    <div class="info-block">
+        <div class="coins-container">
+            Монети: <span id="coinsCount">0</span>
+        </div>
+        <div class="stats-container">
+            <div>Сила кліку: <span id="clickPowerText">1</span></div>
+            <div>Пасивний дохід: <span id="passiveIncomeText">0</span>/сек</div>
+        </div>
     </div>
     <div class="nav-buttons">
         <button id="shopToggleBtn" class="nav-btn">⚙️ Покращення</button>
@@ -19,7 +25,7 @@
         <button id="storiesToggleBtn" class="nav-btn">📜 Історії</button>
         <button id="resetProgressBtn" class="reset-btn">🗑️ Скинути</button>
     </div>
-    </header>
+</header>
 
     <!-- 1. Випадаюче меню покращень -->
     <div id="shopMenu" class="dropdown-menu hidden">
