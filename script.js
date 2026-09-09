@@ -424,3 +424,12 @@ if (currentMusicId && !isMusicMuted) {
         bgMusic.src = track.file;
     }
 }
+
+// Кількість куплених Батрачків
+let batrachokCount = 0;
+
+// Пасивний прибуток за 1 Батрачка (за замовчуванням +1)
+let batrachokPower = 1;
+
+// Ціна (можна зробити динамічною, щоб вона зростала з кожною купівлею)
+let batrachokCost = 10;
