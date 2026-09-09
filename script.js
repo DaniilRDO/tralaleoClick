@@ -1,6 +1,7 @@
 // --- Конфігурація мобів ---
 // Тобі легко додавати нових мобів або змінювати ім'я та шлях до картинки image
-
+const clickPowerText = document.getElementById('clickPowerText');
+const passiveIncomeText = document.getElementById('passiveIncomeText');
 
 
 // Отримуємо кнопку скидання
@@ -169,6 +170,14 @@ function damageMob(amount) {
 // --- Оновлення UI ---
 function updateUI() {
     coinsCountEl.textContent = coins;
+    
+    // Оновлення сили кліку та пасивного доходу
+    clickPowerText.textContent = clickPower;
+    
+    // Розрахунок пасивного доходу на секунду (Батрачок дає 1 монету кожні 1.5 сек => 1 / 1.5 = ~0.67/сек)
+    const passivePerSec = hasWorker ? (1 / 1.5).toFixed(1) : 0;
+    passiveIncomeText.textContent = passivePerSec;
+
     upgradeCostEl.textContent = Math.floor(upgradeCost);
 
     // Звичайний апгрейд
