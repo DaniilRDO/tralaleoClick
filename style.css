@@ -188,18 +188,37 @@ body {
     gap: 15px;
 }
 
+/* Виправлений стиль для картинки моба */
 .click-img {
-    width: 180px;
-    height: 180px;
-    object-fit: cover;
-    border-radius: 50%;
+    width: 200px;
+    height: 200px;
+    object-fit: contain; /* Змінено з cover на contain, щоб картинка вписувалася повністю */
+    object-position: center;
+    border-radius: 15px; /* Заокруглення кутів замість повного кола */
     cursor: pointer;
     box-shadow: 0 0 20px rgba(233, 69, 96, 0.4);
     transition: transform 0.05s ease;
+    background-color: rgba(0, 0, 0, 0.2); /* Темний фон, якщо картинка прямокутна */
 }
 
 .click-img:active {
     transform: scale(0.92);
+}
+
+/* Стиль кнопки скидання */
+.reset-btn {
+    background: #c0392b;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.reset-btn:hover {
+    background: #e74c3c;
 }
 
 /* Шкала ХП */
