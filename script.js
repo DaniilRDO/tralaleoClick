@@ -1,8 +1,8 @@
 // --- Налаштування мобів ---
 const mobsConfig = [
-    { name: "Моб 1", maxHp: 10, image: "clickStartImg.jpg" },
-    { name: "Моб 2", maxHp: 50, image: "clickStartImg.jpg" },
-    { name: "Моб 3", maxHp: 100, image: "clickStartImg.jpg" }
+    { name: "Моб 1", maxHp: 10, image: "clickStartImg.jfif" },
+    { name: "Моб 2", maxHp: 50, image: "clickStartImg.jfif" },
+    { name: "Моб 3", maxHp: 100, image: "clickStartImg.jfif" }
 ];
 
 // --- Музичний список ---
