@@ -1,37 +1,15 @@
-// --- Конфігурація мобів ---
-// Тобі легко додавати нових мобів або змінювати ім'я та шлях до картинки image
-const clickPowerText = document.getElementById('clickPowerText');
-const passiveIncomeText = document.getElementById('passiveIncomeText');
-
-
-// Отримуємо кнопку скидання
-const resetProgressBtn = document.getElementById('resetProgressBtn');
-
-// Подія для скидання прогресу
-resetProgressBtn.addEventListener('click', () => {
-    // Запитаємо підтвердження, щоб гравець випадково не стер дані
-    const confirmReset = confirm("Ви дійсно хочете повністю скинути весь прогрес?");
-    
-    if (confirmReset) {
-        // Очищаємо всі збережені дані з пам'яті браузера
-        localStorage.clear();
-        
-        // Перезавантажуємо сторінку, щоб застосувати початковий стан
-        location.reload();
-    }
-});
-
+// --- Налаштування мобів ---
 const mobsConfig = [
     { name: "Моб 1", maxHp: 10, image: "clickStartImg.jpg" },
     { name: "Моб 2", maxHp: 50, image: "clickStartImg.jpg" },
     { name: "Моб 3", maxHp: 100, image: "clickStartImg.jpg" }
 ];
 
-// --- Список музики ---
+// --- Музичний список ---
 const musicList = [
     { id: 'tuntun', title: 'Tun Tun Tsahur', cost: 500, file: 'tuntunTsahur.mp3' },
     { id: 'family', title: 'Family Track', cost: 2000, file: 'family.mp3' },
-    { id: 'freak', title: 'Freak Sound', cost: 4000, file: 'freak.ogg' }
+    { id: 'freak', title: 'Freak Sound', cost: 4000, file: 'freak.mp3' }
 ];
 
 // --- Збережені або початкові значення ---
@@ -39,14 +17,15 @@ let coins = parseInt(localStorage.getItem('coins')) || 0;
 let clickPower = parseInt(localStorage.getItem('clickPower')) || 1;
 let upgradeCost = parseInt(localStorage.getItem('upgradeCost')) || 10;
 
-// Робота з Батрачком
-let hasWorker = localStorage.getItem('hasWorker') === 'true';
+// Батрачок (кількість і ціна)
+let workerCount = parseInt(localStorage.getItem('workerCount')) || 0;
+let workerCost = parseInt(localStorage.getItem('workerCost')) || 100;
 
-// Робота з Фінгер Смерті
-let fingerLevel = parseInt(localStorage.getItem('fingerLevel')) || 0; // рівень (0 - не куплено)
+// Фінгер Смерті
+let fingerLevel = parseInt(localStorage.getItem('fingerLevel')) || 0;
 let fingerCost = parseInt(localStorage.getItem('fingerCost')) || 1500;
 let fingerKillBonus = parseInt(localStorage.getItem('fingerKillBonus')) || 20;
-let fingerKillMultiplier = parseInt(localStorage.getItem('fingerKillMultiplier')) || 1; // 2, 3, 4 при наступних покупках
+let fingerKillMultiplier = parseInt(localStorage.getItem('fingerKillMultiplier')) || 1;
 
 // Музика
 let purchasedMusic = JSON.parse(localStorage.getItem('purchasedMusic')) || [];
@@ -57,16 +36,19 @@ let isMusicMuted = localStorage.getItem('isMusicMuted') === 'true';
 // Історії
 let purchasedHatStory = localStorage.getItem('purchasedHatStory') === 'true';
 
-// Поточний стан моба
+// Стан моба
 let currentMobIndex = 0;
 let currentMobHp = mobsConfig[0].maxHp;
 
-// Кулдаун здібності
-let fingerCooldownTimer = null;
+// Стан здібності
 let isFingerReady = true;
+let fingerCooldownTimer = null;
 
 // --- DOM елементи ---
 const coinsCountEl = document.getElementById('coinsCount');
+const clickPowerText = document.getElementById('clickPowerText');
+const passiveIncomeText = document.getElementById('passiveIncomeText');
+
 const clickBtn = document.getElementById('clickBtn');
 const clickSound = document.getElementById('clickSound');
 const bgMusic = document.getElementById('bgMusic');
@@ -75,10 +57,11 @@ const mobNameEl = document.getElementById('mobName');
 const hpBarFill = document.getElementById('hpBarFill');
 const hpText = document.getElementById('hpText');
 
-// Навігація та меню
+// Навігація
 const shopToggleBtn = document.getElementById('shopToggleBtn');
 const musicToggleBtn = document.getElementById('musicToggleBtn');
 const storiesToggleBtn = document.getElementById('storiesToggleBtn');
+const resetProgressBtn = document.getElementById('resetProgressBtn');
 
 const shopMenu = document.getElementById('shopMenu');
 const musicMenu = document.getElementById('musicMenu');
@@ -87,7 +70,11 @@ const storiesMenu = document.getElementById('storiesMenu');
 // Кнопки покрань
 const buyUpgradeBtn = document.getElementById('buyUpgradeBtn');
 const upgradeCostEl = document.getElementById('upgradeCost');
+
 const buyWorkerBtn = document.getElementById('buyWorkerBtn');
+const workerCountText = document.getElementById('workerCountText');
+const workerCostText = document.getElementById('workerCostText');
+
 const buyFingerBtn = document.getElementById('buyFingerBtn');
 const fingerCostEl = document.getElementById('fingerCost');
 const fingerBonusText = document.getElementById('fingerBonusText');
@@ -96,18 +83,24 @@ const fingerBonusText = document.getElementById('fingerBonusText');
 const musicListContainer = document.getElementById('musicList');
 const offMusicBtn = document.getElementById('offMusicBtn');
 
-// Елементи історій
+// Історії
 const buyHatStoryBtn = document.getElementById('buyHatStoryBtn');
 const storyModal = document.getElementById('storyModal');
 const closeStoryModal = document.getElementById('closeStoryModal');
 const storyTitle = document.getElementById('storyTitle');
 const storyText = document.getElementById('storyText');
 
-// Елементи здібності
+// Здібності
 const fingerAbilityBtn = document.getElementById('fingerAbilityBtn');
 const fingerCooldownText = document.getElementById('fingerCooldown');
 
-// --- Перемикання меню ---
+// Захист від відсутності картинки
+clickBtn.addEventListener('error', () => {
+    // Якщо картинку clickStartImg.jpg не знайдено, ставимо тимчасову заглушку
+    clickBtn.src = "https://via.placeholder.com/200/0f3460/ffffff?text=Click+Me";
+});
+
+// --- Меню ---
 function hideAllMenus() {
     shopMenu.classList.add('hidden');
     musicMenu.classList.add('hidden');
@@ -132,7 +125,7 @@ storiesToggleBtn.addEventListener('click', () => {
     if (isHidden) storiesMenu.classList.remove('hidden');
 });
 
-// --- Функція спавну випадкового моба ---
+// --- Спавн та ХП ---
 function spawnRandomMob() {
     currentMobIndex = Math.floor(Math.random() * mobsConfig.length);
     const mob = mobsConfig[currentMobIndex];
@@ -143,7 +136,6 @@ function spawnRandomMob() {
     updateHpBar();
 }
 
-// --- Оновлення ХП ---
 function updateHpBar() {
     const mob = mobsConfig[currentMobIndex];
     const percentage = Math.max(0, (currentMobHp / mob.maxHp) * 100);
@@ -151,13 +143,10 @@ function updateHpBar() {
     hpText.textContent = `${Math.max(0, currentMobHp)} / ${mob.maxHp}`;
 }
 
-// --- Нанесення ушкодження мобу ---
 function damageMob(amount) {
     currentMobHp -= amount;
     
-    // Перевірка на смерть моба
     if (currentMobHp <= 0) {
-        // Додаємо бонус Фінгеру, якщо було купляно
         if (fingerLevel > 0) {
             fingerKillBonus += fingerKillMultiplier;
         }
@@ -169,38 +158,35 @@ function damageMob(amount) {
 
 // --- Оновлення UI ---
 function updateUI() {
-    coinsCountEl.textContent = coins;
+    coinsCountEl.textContent = Math.floor(coins);
     
-    // Оновлення сили кліку та пасивного доходу
+    // Верхні показники
     clickPowerText.textContent = clickPower;
     
-    // Розрахунок пасивного доходу на секунду (Батрачок дає 1 монету кожні 1.5 сек => 1 / 1.5 = ~0.67/сек)
-    const passivePerSec = hasWorker ? (1 / 1.5).toFixed(1) : 0;
+    // Розрахунок пасивного доходу (кожен Батрачок дає +1 кожні 1.5 сек = 0.67/сек)
+    const passivePerSec = (workerCount * (1 / 1.5)).toFixed(1);
     passiveIncomeText.textContent = passivePerSec;
 
+    // Апгрейд +1 до кліку
     upgradeCostEl.textContent = Math.floor(upgradeCost);
-
-    // Звичайний апгрейд
     buyUpgradeBtn.disabled = coins < upgradeCost;
 
     // Батрачок
-    if (hasWorker) {
-        buyWorkerBtn.textContent = "Куплено";
-        buyWorkerBtn.disabled = true;
-    } else {
-        buyWorkerBtn.disabled = coins < 100;
-    }
+    workerCountText.textContent = workerCount;
+    workerCostText.textContent = Math.floor(workerCost);
+    buyWorkerBtn.disabled = coins < workerCost;
 
     // Фінгер смерті
     fingerBonusText.textContent = fingerKillBonus;
-    fingerCostEl.textContent = fingerCost;
+    fingerCostEl.textContent = Math.floor(fingerCost);
     buyFingerBtn.disabled = coins < fingerCost;
     
     if (fingerLevel > 0) {
         fingerAbilityBtn.classList.remove('hidden');
+        fingerAbilityBtn.disabled = !isFingerReady;
     }
 
-    // Off music
+    // Музика та історії
     if (hasOffMusicBtn) {
         offMusicBtn.textContent = isMusicMuted ? "Увімкнути музику" : "Off music (Активовано)";
         offMusicBtn.disabled = false;
@@ -208,7 +194,6 @@ function updateUI() {
         offMusicBtn.disabled = coins < 10000;
     }
 
-    // Історія
     if (purchasedHatStory) {
         buyHatStoryBtn.textContent = "Читати";
         buyHatStoryBtn.disabled = false;
@@ -219,16 +204,20 @@ function updateUI() {
     renderMusicMenu();
 }
 
-// --- Логіка збереження ---
+// --- Збереження ---
 function saveProgress() {
     localStorage.setItem('coins', coins);
     localStorage.setItem('clickPower', clickPower);
     localStorage.setItem('upgradeCost', upgradeCost);
-    localStorage.setItem('hasWorker', hasWorker);
+    
+    localStorage.setItem('workerCount', workerCount);
+    localStorage.setItem('workerCost', workerCost);
+    
     localStorage.setItem('fingerLevel', fingerLevel);
     localStorage.setItem('fingerCost', fingerCost);
     localStorage.setItem('fingerKillBonus', fingerKillBonus);
     localStorage.setItem('fingerKillMultiplier', fingerKillMultiplier);
+    
     localStorage.setItem('purchasedMusic', JSON.stringify(purchasedMusic));
     localStorage.setItem('currentMusicId', currentMusicId);
     localStorage.setItem('hasOffMusicBtn', hasOffMusicBtn);
@@ -236,7 +225,7 @@ function saveProgress() {
     localStorage.setItem('purchasedHatStory', purchasedHatStory);
 }
 
-// --- Подія кліку по мобу ---
+// --- Клік по мобу ---
 clickBtn.addEventListener('click', () => {
     coins += clickPower;
     damageMob(clickPower);
@@ -248,7 +237,7 @@ clickBtn.addEventListener('click', () => {
     saveProgress();
 });
 
-// --- Апгрейди ---
+// --- Купівлі ---
 buyUpgradeBtn.addEventListener('click', () => {
     if (coins >= upgradeCost) {
         coins -= Math.floor(upgradeCost);
@@ -259,21 +248,23 @@ buyUpgradeBtn.addEventListener('click', () => {
     }
 });
 
-// Купівля Батрачка
+// Купівля Батрачка (можна купувати багато разів)
 buyWorkerBtn.addEventListener('click', () => {
-    if (!hasWorker && coins >= 100) {
-        coins -= 100;
-        hasWorker = true;
+    if (coins >= workerCost) {
+        coins -= Math.floor(workerCost);
+        workerCount += 1;
+        workerCost *= 1.6; // Вартість кожного наступного зростає
         updateUI();
         saveProgress();
     }
 });
 
-// Пасивний дохід від Батрачка (кожні 1.5 сек +1 монета та -1 ХП)
+// Пасивний дохід Батрачка
 setInterval(() => {
-    if (hasWorker) {
-        coins += 1;
-        damageMob(1);
+    if (workerCount > 0) {
+        const damage = workerCount * 1;
+        coins += damage;
+        damageMob(damage);
         updateUI();
         saveProgress();
     }
@@ -282,31 +273,29 @@ setInterval(() => {
 // Купівля Фінгер Смерті
 buyFingerBtn.addEventListener('click', () => {
     if (coins >= fingerCost) {
-        coins -= fingerCost;
+        coins -= Math.floor(fingerCost);
         
         if (fingerLevel === 0) {
             fingerLevel = 1;
         } else {
             fingerLevel += 1;
-            fingerKillMultiplier += 1; // Наступні вбивства збільшуватимуть бонус на +2, +3, +4...
+            fingerKillMultiplier += 1;
         }
         
-        fingerCost *= 2; // Збільшуємо ціну наступної покупки
+        fingerCost *= 2;
         updateUI();
         saveProgress();
     }
 });
 
-// Активація Здібності Фінгер Смерті
+// Активація Здібності
 fingerAbilityBtn.addEventListener('click', () => {
-    if (!isFingerReady) return;
+    if (!isFingerReady || fingerLevel === 0) return;
 
-    // Шкода = 2 * сила кліку + бонус від фінгер смерті
     const totalDamage = (2 * clickPower) + fingerKillBonus;
     coins += totalDamage;
     damageMob(totalDamage);
 
-    // Кулдаун 10 секунд
     isFingerReady = false;
     fingerAbilityBtn.disabled = true;
     let timeLeft = 10;
@@ -328,7 +317,7 @@ fingerAbilityBtn.addEventListener('click', () => {
     saveProgress();
 });
 
-// --- Музична система ---
+// --- Музика ---
 function renderMusicMenu() {
     musicListContainer.innerHTML = '';
     
@@ -376,7 +365,6 @@ function switchTrack(track) {
     bgMusic.play().catch(() => {});
 }
 
-// Off music кнопка
 offMusicBtn.addEventListener('click', () => {
     if (!hasOffMusicBtn && coins >= 10000) {
         coins -= 10000;
@@ -395,7 +383,7 @@ offMusicBtn.addEventListener('click', () => {
     saveProgress();
 });
 
-// --- Меню Історій ---
+// --- Історії ---
 buyHatStoryBtn.addEventListener('click', () => {
     if (!purchasedHatStory && coins >= 1000) {
         coins -= 1000;
@@ -418,11 +406,18 @@ closeStoryModal.addEventListener('click', () => {
     storyModal.classList.add('hidden');
 });
 
-// Ініціалізація гри при завантаженні
+// Скинути прогрес
+resetProgressBtn.addEventListener('click', () => {
+    if (confirm("Ви дійсно хочете повністю скинути весь прогрес?")) {
+        localStorage.clear();
+        location.reload();
+    }
+});
+
+// Старт
 spawnRandomMob();
 updateUI();
 
-// Відновлення відтворення музики після перезавантаження
 if (currentMusicId && !isMusicMuted) {
     const track = musicList.find(t => t.id === currentMusicId);
     if (track) {
