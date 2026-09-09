@@ -1,1 +1,43 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тралалео Клікер</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+    <!-- Верхня панель з монетками та кнопкою меню -->
+    <header class="top-bar">
+        <div class="coins-container">
+            Монети: <span id="coinsCount">0</span>
+        </div>
+        <button id="shopToggleBtn" class="shop-btn">⚙️ Покращення</button>
+    </header>
+
+    <!-- Випадаюче меню покращень -->
+    <div id="shopMenu" class="shop-menu hidden">
+        <h2>Покращення</h2>
+        <div class="shop-item">
+            <div class="item-info">
+                <h3>+1 до кліку</h3>
+                <p>Збільшує кількість монет за кожен клік</p>
+            </div>
+            <button id="buyUpgradeBtn" class="buy-btn" disabled>
+                Купити (<span id="upgradeCost">10</span> мон.)
+            </button>
+        </div>
+    </div>
+
+    <!-- Центральна зона з кнопкою-картинкою -->
+    <main class="click-area">
+        <img id="clickBtn" src="clickStartImg.jpg" alt="Клік!" class="click-img">
+    </main>
+
+    <!-- Звук кліку -->
+    <audio id="clickSound" src="clickStandartSound.mp3" preload="auto"></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
