@@ -1,5 +1,25 @@
 // --- Конфігурація мобів ---
 // Тобі легко додавати нових мобів або змінювати ім'я та шлях до картинки image
+
+
+
+// Отримуємо кнопку скидання
+const resetProgressBtn = document.getElementById('resetProgressBtn');
+
+// Подія для скидання прогресу
+resetProgressBtn.addEventListener('click', () => {
+    // Запитаємо підтвердження, щоб гравець випадково не стер дані
+    const confirmReset = confirm("Ви дійсно хочете повністю скинути весь прогрес?");
+    
+    if (confirmReset) {
+        // Очищаємо всі збережені дані з пам'яті браузера
+        localStorage.clear();
+        
+        // Перезавантажуємо сторінку, щоб застосувати початковий стан
+        location.reload();
+    }
+});
+
 const mobsConfig = [
     { name: "Моб 1", maxHp: 10, image: "clickStartImg.jpg" },
     { name: "Моб 2", maxHp: 50, image: "clickStartImg.jpg" },
