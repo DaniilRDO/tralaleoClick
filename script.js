@@ -96,7 +96,7 @@ const fingerCooldownText = document.getElementById('fingerCooldown');
 
 // Захист від відсутності картинки
 clickBtn.addEventListener('error', () => {
-    // Якщо картинку clickStartImg.jpg не знайдено, ставимо тимчасову заглушку
+    // Якщо картинку clickStartImg.jfif не знайдено, ставимо тимчасову заглушку
     clickBtn.src = "https://via.placeholder.com/200/0f3460/ffffff?text=Click+Me";
 });
 
