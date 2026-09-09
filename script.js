@@ -9,7 +9,7 @@ const mobsConfig = [
 const musicList = [
     { id: 'tuntun', title: 'Tun Tun Tsahur', cost: 500, file: 'tuntunTsahur.mp3' },
     { id: 'family', title: 'Family Track', cost: 2000, file: 'family.mp3' },
-    { id: 'freak', title: 'Freak Sound', cost: 4000, file: 'freak.mp3' }
+    { id: 'freak', title: 'Freak Sound', cost: 4000, file: 'freak.ogg' }
 ];
 
 // --- Збережені або початкові значення ---
