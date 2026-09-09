@@ -1,15 +1,15 @@
 // --- Налаштування мобів ---
 const mobsConfig = [
-    { name: "Моб 1", maxHp: 10, image: "clickStartImg.jfif" },
-    { name: "Моб 2", maxHp: 50, image: "clickStartImg.jfif" },
-    { name: "Моб 3", maxHp: 100, image: "clickStartImg.jfif" }
+    { name: "Моб 1", maxHp: 10, image: "clickStartImg.jpg" },
+    { name: "Моб 2", maxHp: 50, image: "clickStartImg.jpg" },
+    { name: "Моб 3", maxHp: 100, image: "clickStartImg.jpg" }
 ];
 
 // --- Музичний список ---
 const musicList = [
     { id: 'tuntun', title: 'Tun Tun Tsahur', cost: 500, file: 'tuntunTsahur.mp3' },
     { id: 'family', title: 'Family Track', cost: 2000, file: 'family.mp3' },
-    { id: 'freak', title: 'Freak Sound', cost: 4000, file: 'freak.ogg' }
+    { id: 'freak', title: 'Freak Sound', cost: 4000, file: 'freak.mp3' }
 ];
 
 // --- Збережені або початкові значення ---
@@ -67,7 +67,7 @@ const shopMenu = document.getElementById('shopMenu');
 const musicMenu = document.getElementById('musicMenu');
 const storiesMenu = document.getElementById('storiesMenu');
 
-// Кнопки покрань
+// Кнопки покращень
 const buyUpgradeBtn = document.getElementById('buyUpgradeBtn');
 const upgradeCostEl = document.getElementById('upgradeCost');
 
@@ -96,7 +96,6 @@ const fingerCooldownText = document.getElementById('fingerCooldown');
 
 // Захист від відсутності картинки
 clickBtn.addEventListener('error', () => {
-    // Якщо картинку clickStartImg.jfif не знайдено, ставимо тимчасову заглушку
     clickBtn.src = "https://via.placeholder.com/200/0f3460/ffffff?text=Click+Me";
 });
 
@@ -171,7 +170,7 @@ function updateUI() {
     upgradeCostEl.textContent = Math.floor(upgradeCost);
     buyUpgradeBtn.disabled = coins < upgradeCost;
 
-    // Батрачок
+    // Батрачок (багаторазова купівля)
     workerCountText.textContent = workerCount;
     workerCostText.textContent = Math.floor(workerCost);
     buyWorkerBtn.disabled = coins < workerCost;
@@ -248,41 +247,16 @@ buyUpgradeBtn.addEventListener('click', () => {
     }
 });
 
-// Купівля Батрачка (можна купувати багато разів)
+// Купівля Батрачка (можна купувати безліч разів)
 buyWorkerBtn.addEventListener('click', () => {
     if (coins >= workerCost) {
         coins -= Math.floor(workerCost);
         workerCount += 1;
-        workerCost *= 1.6; // Вартість кожного наступного зростає
+        workerCost *= 1.5; // Збільшення ціни наступного батрачка
         updateUI();
         saveProgress();
     }
 });
-
-function buyBatrachok() {
-    // Перевіряємо, чи вистачає монет/балів
-    if (score >= batrachokCost) {
-        score -= batrachokCost; // Списуємо ціну
-        batrachokCount++;       // Збільшуємо кількість батрачків
-
-        // Опціонально: збільшуємо ціну наступного Батрачка (наприклад, на 15%)
-        // batrachokCost = Math.floor(batrachokCost * 1.15);
-
-        // Оновлюємо відображення на сторінці
-        updateUI();
-    } else {
-        alert("Недостатньо монет!");
-    }
-}
-
-setInterval(() => {
-    // Кожен Батрачок дає +1 (batrachokPower) за секунду
-    let passiveGain = batrachokCount * batrachokPower;
-    
-    score += passiveGain;
-    
-    updateUI();
-}, 1000); // 1000 мс = 1 секунда
 
 // Пасивний дохід Батрачка
 setInterval(() => {
@@ -449,12 +423,3 @@ if (currentMusicId && !isMusicMuted) {
         bgMusic.src = track.file;
     }
 }
-
-// Кількість куплених Батрачків
-let batrachokCount = 0;
-
-// Пасивний прибуток за 1 Батрачка (за замовчуванням +1)
-let batrachokPower = 1;
-
-// Ціна (можна зробити динамічною, щоб вона зростала з кожною купівлею)
-let batrachokCost = 10;
