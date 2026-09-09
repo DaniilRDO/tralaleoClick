@@ -19,21 +19,38 @@ body {
 /* Верхня панель */
 .top-bar {
     width: 100%;
-    max-width: 600px;
-    padding: 15px;
+    max-width: 650px;
+    padding: 12px 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     background: #16213e;
     border-bottom-left-radius: 15px;
     border-bottom-right-radius: 15px;
-    gap: 10px;
+}
+
+.info-block {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
 }
 
 .coins-container {
     font-size: 20px;
     font-weight: bold;
     color: #f1c40f;
+}
+
+.stats-container {
+    font-size: 12px;
+    color: #4ecca3;
+    display: flex;
+    gap: 10px;
+}
+
+.stats-container span {
+    font-weight: bold;
+    color: #ffffff;
 }
 
 .nav-buttons {
@@ -45,18 +62,31 @@ body {
     background: #0f3460;
     color: white;
     border: none;
-    padding: 8px 12px;
-    font-size: 14px;
+    padding: 8px 10px;
+    font-size: 13px;
     border-radius: 8px;
     cursor: pointer;
-    transition: background 0.2s;
 }
 
 .nav-btn:hover {
     background: #e94560;
 }
 
-/* Випадаючі меню */
+.reset-btn {
+    background: #c0392b;
+    color: white;
+    border: none;
+    padding: 8px 10px;
+    font-size: 13px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.reset-btn:hover {
+    background: #e74c3c;
+}
+
+/* Меню */
 .dropdown-menu {
     position: absolute;
     top: 75px;
@@ -123,7 +153,7 @@ body {
     background: #c0392b;
 }
 
-/* Модальне вікно для історій */
+/* Модальне вікно */
 .modal {
     position: fixed;
     top: 0;
@@ -160,10 +190,6 @@ body {
     color: #aaa;
 }
 
-.close-btn:hover {
-    color: #fff;
-}
-
 .story-body {
     margin-top: 15px;
     line-height: 1.5;
@@ -173,7 +199,7 @@ body {
     color: #ddd;
 }
 
-/* Центральна кнопка моба та ХП */
+/* Зона кліку та Моб */
 .click-area {
     flex: 1;
     display: flex;
@@ -188,37 +214,19 @@ body {
     gap: 15px;
 }
 
-/* Виправлений стиль для картинки моба */
 .click-img {
     width: 200px;
     height: 200px;
-    object-fit: contain; /* Змінено з cover на contain, щоб картинка вписувалася повністю */
-    object-position: center;
-    border-radius: 15px; /* Заокруглення кутів замість повного кола */
+    object-fit: cover;
+    border-radius: 20px;
     cursor: pointer;
     box-shadow: 0 0 20px rgba(233, 69, 96, 0.4);
     transition: transform 0.05s ease;
-    background-color: rgba(0, 0, 0, 0.2); /* Темний фон, якщо картинка прямокутна */
+    background-color: #0f3460;
 }
 
 .click-img:active {
     transform: scale(0.92);
-}
-
-/* Стиль кнопки скидання */
-.reset-btn {
-    background: #c0392b;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    font-size: 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.reset-btn:hover {
-    background: #e74c3c;
 }
 
 /* Шкала ХП */
@@ -253,7 +261,7 @@ body {
     text-shadow: 1px 1px 2px #000;
 }
 
-/* Нижня панель здібностей */
+/* Здібності */
 .abilities-bar {
     padding: 15px;
 }
@@ -262,7 +270,7 @@ body {
     background: #16213e;
     border: 2px solid #e94560;
     border-radius: 10px;
-    padding: 5px 10px;
+    padding: 8px 15px;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -281,27 +289,8 @@ body {
 }
 
 .ability-img {
-    width: 40px;
-    height: 40px;
+    width: 35px;
+    height: 35px;
     border-radius: 6px;
     object-fit: cover;
-}
-
-
-.info-block {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.stats-container {
-    font-size: 13px;
-    color: #4ecca3;
-    display: flex;
-    gap: 12px;
-}
-
-.stats-container span {
-    font-weight: bold;
-    color: #ffffff;
 }
