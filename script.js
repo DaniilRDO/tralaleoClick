@@ -1,425 +1,687 @@
-// --- Налаштування мобів ---
-const mobsConfig = [
-    { name: "Моб 1", maxHp: 10, image: "clickStartImg.jfif" },
-    { name: "Моб 2", maxHp: 50, image: "clickStartImg.jfif" },
-    { name: "Моб 3", maxHp: 100, image: "clickStartImg.jfif" }
-];
-
-// --- Музичний список ---
-const musicList = [
-    { id: 'tuntun', title: 'Tun Tun Tsahur', cost: 500, file: 'tuntunTsahur.mp3' },
-    { id: 'family', title: 'Family Track', cost: 2000, file: 'family.MP3' },
-    { id: 'freak', title: 'Freak Sound', cost: 4000, file: 'freak.ogg' }
-];
-
-// --- Збережені або початкові значення ---
-let coins = parseInt(localStorage.getItem('coins')) || 0;
-let clickPower = parseInt(localStorage.getItem('clickPower')) || 1;
-let upgradeCost = parseInt(localStorage.getItem('upgradeCost')) || 10;
-
-// Батрачок (кількість і ціна)
-let workerCount = parseInt(localStorage.getItem('workerCount')) || 0;
-let workerCost = parseInt(localStorage.getItem('workerCost')) || 100;
-
-// Фінгер Смерті
-let fingerLevel = parseInt(localStorage.getItem('fingerLevel')) || 0;
-let fingerCost = parseInt(localStorage.getItem('fingerCost')) || 1500;
-let fingerKillBonus = parseInt(localStorage.getItem('fingerKillBonus')) || 20;
-let fingerKillMultiplier = parseInt(localStorage.getItem('fingerKillMultiplier')) || 1;
-
-// Музика
-let purchasedMusic = JSON.parse(localStorage.getItem('purchasedMusic')) || [];
-let currentMusicId = localStorage.getItem('currentMusicId') || null;
-let hasOffMusicBtn = localStorage.getItem('hasOffMusicBtn') === 'true';
-let isMusicMuted = localStorage.getItem('isMusicMuted') === 'true';
-
-// Історії
-let purchasedHatStory = localStorage.getItem('purchasedHatStory') === 'true';
-
-// Стан моба
-let currentMobIndex = 0;
-let currentMobHp = mobsConfig[0].maxHp;
-
-// Стан здібності
-let isFingerReady = true;
-let fingerCooldownTimer = null;
-
-// --- DOM елементи ---
-const coinsCountEl = document.getElementById('coinsCount');
-const clickPowerText = document.getElementById('clickPowerText');
-const passiveIncomeText = document.getElementById('passiveIncomeText');
-
-const clickBtn = document.getElementById('clickBtn');
-const clickSound = document.getElementById('clickSound');
-const bgMusic = document.getElementById('bgMusic');
-
-const mobNameEl = document.getElementById('mobName');
-const hpBarFill = document.getElementById('hpBarFill');
-const hpText = document.getElementById('hpText');
-
-// Навігація
-const shopToggleBtn = document.getElementById('shopToggleBtn');
-const musicToggleBtn = document.getElementById('musicToggleBtn');
-const storiesToggleBtn = document.getElementById('storiesToggleBtn');
-const resetProgressBtn = document.getElementById('resetProgressBtn');
-
-const shopMenu = document.getElementById('shopMenu');
-const musicMenu = document.getElementById('musicMenu');
-const storiesMenu = document.getElementById('storiesMenu');
-
-// Кнопки покращень
-const buyUpgradeBtn = document.getElementById('buyUpgradeBtn');
-const upgradeCostEl = document.getElementById('upgradeCost');
-
-const buyWorkerBtn = document.getElementById('buyWorkerBtn');
-const workerCountText = document.getElementById('workerCountText');
-const workerCostText = document.getElementById('workerCostText');
-
-const buyFingerBtn = document.getElementById('buyFingerBtn');
-const fingerCostEl = document.getElementById('fingerCost');
-const fingerBonusText = document.getElementById('fingerBonusText');
-
-// Музичні елементи
-const musicListContainer = document.getElementById('musicList');
-const offMusicBtn = document.getElementById('offMusicBtn');
-
-// Історії
-const buyHatStoryBtn = document.getElementById('buyHatStoryBtn');
-const storyModal = document.getElementById('storyModal');
-const closeStoryModal = document.getElementById('closeStoryModal');
-const storyTitle = document.getElementById('storyTitle');
-const storyText = document.getElementById('storyText');
-
-// Здібності
-const fingerAbilityBtn = document.getElementById('fingerAbilityBtn');
-const fingerCooldownText = document.getElementById('fingerCooldown');
-
-// Захист від відсутності картинки
-clickBtn.addEventListener('error', () => {
-    clickBtn.src = "https://via.placeholder.com/200/0f3460/ffffff?text=Click+Me";
-});
-
-// --- Меню ---
-function hideAllMenus() {
-    shopMenu.classList.add('hidden');
-    musicMenu.classList.add('hidden');
-    storiesMenu.classList.add('hidden');
-}
-
-shopToggleBtn.addEventListener('click', () => {
-    const isHidden = shopMenu.classList.contains('hidden');
-    hideAllMenus();
-    if (isHidden) shopMenu.classList.remove('hidden');
-});
-
-musicToggleBtn.addEventListener('click', () => {
-    const isHidden = musicMenu.classList.contains('hidden');
-    hideAllMenus();
-    if (isHidden) musicMenu.classList.remove('hidden');
-});
-
-storiesToggleBtn.addEventListener('click', () => {
-    const isHidden = storiesMenu.classList.contains('hidden');
-    hideAllMenus();
-    if (isHidden) storiesMenu.classList.remove('hidden');
-});
-
-// --- Спавн та ХП ---
-function spawnRandomMob() {
-    currentMobIndex = Math.floor(Math.random() * mobsConfig.length);
-    const mob = mobsConfig[currentMobIndex];
-    currentMobHp = mob.maxHp;
+// --- СТАН ГРИ ---
+let gameState = {
+    coins: 0,
+    totalClicks: 0,
+    totalMobKills: 0,
     
-    mobNameEl.textContent = mob.name;
-    clickBtn.src = mob.image;
-    updateHpBar();
-}
-
-function updateHpBar() {
-    const mob = mobsConfig[currentMobIndex];
-    const percentage = Math.max(0, (currentMobHp / mob.maxHp) * 100);
-    hpBarFill.style.width = percentage + '%';
-    hpText.textContent = `${Math.max(0, currentMobHp)} / ${mob.maxHp}`;
-}
-
-function damageMob(amount) {
-    currentMobHp -= amount;
+    // Сила кліку
+    clickUpgradeLevel: 0,
     
-    if (currentMobHp <= 0) {
-        if (fingerLevel > 0) {
-            fingerKillBonus += fingerKillMultiplier;
-        }
-        spawnRandomMob();
-    } else {
-        updateHpBar();
-    }
-}
-
-// --- Оновлення UI ---
-function updateUI() {
-    coinsCountEl.textContent = Math.floor(coins);
+    // Батрачки (пасивний дохід)
+    workers: 0,
     
-    // Верхні показники
-    clickPowerText.textContent = clickPower;
-    
-    // Розрахунок пасивного доходу (кожен Батрачок дає +1 кожні 1.5 сек = 0.67/сек)
-    const passivePerSec = (workerCount * (1 / 1.5)).toFixed(1);
-    passiveIncomeText.textContent = passivePerSec;
-
-    // Апгрейд +1 до кліку
-    upgradeCostEl.textContent = Math.floor(upgradeCost);
-    buyUpgradeBtn.disabled = coins < upgradeCost;
-
-    // Батрачок (багаторазова купівля)
-    workerCountText.textContent = workerCount;
-    workerCostText.textContent = Math.floor(workerCost);
-    buyWorkerBtn.disabled = coins < workerCost;
-
     // Фінгер смерті
-    fingerBonusText.textContent = fingerKillBonus;
-    fingerCostEl.textContent = Math.floor(fingerCost);
-    buyFingerBtn.disabled = coins < fingerCost;
+    fingerPurchasedCount: 0, // Скільки разів купляли
+    fingerKills: 0,          // Скільки мобів вбито саме Фінгером
+    fingerCooldownActive: false,
     
-    if (fingerLevel > 0) {
-        fingerAbilityBtn.classList.remove('hidden');
-        fingerAbilityBtn.disabled = !isFingerReady;
-    }
+    // Апгрейди
+    hasCasino: false,
+    casinoCooldownActive: false,
+    hasEcon: false,
+    
+    // Бафи
+    buffs: {
+        magnetLevel: 0,     // до 5 рівнів (1% - 5%)
+        greedLevel: 0,      // до 50 рівнів (+1% за кожні 1000 монет)
+        goldFinger: false,   // +СилаКліку*10 кожні 100 кліків
+        moneyMakesMoney: false, // +0.5% за кожен купиний баф/апгрейд
+        stonemason: false   // +1% сили кліку за кожні 1000 кліків
+    },
+    
+    // Ачивки
+    achievements: {
+        fingerPain: false,
+        fingerNoPain: false,
+        capitalist: false,
+        fist: false,
+        slaughter: false,
+        famousName: false,
+        music: false,
+        timeIsMoney: false,
+        adhd: false
+    },
+    
+    // Статистика для ачивок
+    abilityCooldownTimeTotal: 0, // сумарний час очікування абілок в секундах
+    
+    // Моб
+    mobMaxHp: 10,
+    mobCurrentHp: 10,
+    
+    // Історії та музика
+    unlockedHatStory: false,
+    currentMusicTrack: null,
+    isMusicOffPurchased: false
+};
 
-    // Музика та історії
-    if (hasOffMusicBtn) {
-        offMusicBtn.textContent = isMusicMuted ? "Увімкнути музику" : "Off music (Активовано)";
-        offMusicBtn.disabled = false;
-    } else {
-        offMusicBtn.disabled = coins < 10000;
-    }
+// Економіка подій
+let econMultiplierPassive = 1;
+let econClickBonusTemp = 1;
 
-    if (purchasedHatStory) {
-        buyHatStoryBtn.textContent = "Читати";
-        buyHatStoryBtn.disabled = false;
-    } else {
-        buyHatStoryBtn.disabled = coins < 1000;
-    }
+// Аудіо елементи
+const sounds = {
+    click: document.getElementById('clickSound'),
+    finger: document.getElementById('fingerSound'),
+    casino: document.getElementById('casinoSound'),
+    realbatr: document.getElementById('realbatrSound'),
+    bounty: document.getElementById('bountySound'),
+    fatclick: document.getElementById('fatclickSound'),
+    bg: document.getElementById('bgMusic')
+};
 
-    renderMusicMenu();
+function playSound(audioEl) {
+    if (audioEl) {
+        audioEl.currentTime = 0;
+        audioEl.play().catch(e => console.log('Audio error:', e));
+    }
 }
 
-// --- Збереження ---
-function saveProgress() {
-    localStorage.setItem('coins', coins);
-    localStorage.setItem('clickPower', clickPower);
-    localStorage.setItem('upgradeCost', upgradeCost);
+// РОЗРАХУНКОВІ ПОКАЗНИКИ
+function getClickPower() {
+    let base = 1 + gameState.clickUpgradeLevel;
     
-    localStorage.setItem('workerCount', workerCount);
-    localStorage.setItem('workerCost', workerCost);
+    // Камінщік: +1% за кожні 1000 кліків
+    if (gameState.buffs.stonemason) {
+        let count1000 = Math.floor(gameState.totalClicks / 1000);
+        base *= (1 + count1000 * 0.01);
+    }
     
-    localStorage.setItem('fingerLevel', fingerLevel);
-    localStorage.setItem('fingerCost', fingerCost);
-    localStorage.setItem('fingerKillBonus', fingerKillBonus);
-    localStorage.setItem('fingerKillMultiplier', fingerKillMultiplier);
+    // Гроші роблять гроші: +0.5% за кожен апгрейд та баф
+    if (gameState.buffs.moneyMakesMoney) {
+        let totalPurchases = gameState.clickUpgradeLevel + gameState.workers + 
+                             gameState.fingerPurchasedCount + (gameState.hasCasino ? 1 : 0) + 
+                             (gameState.hasEcon ? 1 : 0) + gameState.buffs.magnetLevel + 
+                             gameState.buffs.greedLevel + (gameState.buffs.goldFinger ? 1 : 0) + 
+                             (gameState.buffs.moneyMakesMoney ? 1 : 0) + (gameState.buffs.stonemason ? 1 : 0);
+        base *= (1 + totalPurchases * 0.005);
+    }
     
-    localStorage.setItem('purchasedMusic', JSON.stringify(purchasedMusic));
-    localStorage.setItem('currentMusicId', currentMusicId);
-    localStorage.setItem('hasOffMusicBtn', hasOffMusicBtn);
-    localStorage.setItem('isMusicMuted', isMusicMuted);
-    localStorage.setItem('purchasedHatStory', purchasedHatStory);
+    // Ачивки бонуси до кліку
+    let achBonus = 0;
+    if (gameState.achievements.fingerPain) achBonus += 0.05;
+    if (gameState.achievements.fingerNoPain) achBonus += 0.10;
+    base *= (1 + achBonus);
+    
+    // Ачивка "Його ім'я знав кожен": Вбивство 1500 мобів збільшує силу кліку на +1
+    if (gameState.achievements.famousName) {
+        base += 1;
+    }
+    
+    // Нестабільна економіка тимчасовий бонус х5
+    base *= econClickBonusTemp;
+    
+    return Math.max(1, Math.floor(base));
 }
 
-// --- Клік по мобу ---
-clickBtn.addEventListener('click', () => {
-    coins += clickPower;
-    damageMob(clickPower);
+function getFingerBonusPerKill() {
+    if (gameState.fingerPurchasedCount === 0) return 0;
+    return 20 + (gameState.fingerPurchasedCount - 1) * 5; // +20 перший раз, +25 при повторній покупці і т.д.
+}
 
-    clickSound.currentTime = 0;
-    clickSound.play().catch(() => {});
+function getFingerTotalDamage() {
+    let perKill = getFingerBonusPerKill();
+    let total = gameState.fingerKills * perKill;
+    
+    // Ачивка: 5 пальців в кулак (+10% до сили Фінгер)
+    if (gameState.achievements.fist) {
+        total *= 1.10;
+    }
+    
+    return Math.floor(total);
+}
 
+function getPassiveIncome() {
+    let base = (gameState.workers * 1) / 1.5; // Батрачок
+    
+    // Жадібність: +1% за кожні 1000 монет на рахунку (до +50%)
+    if (gameState.buffs.greedLevel > 0) {
+        let thousandCoins = Math.floor(gameState.coins / 1000);
+        let bonusPercent = Math.min(gameState.buffs.greedLevel * 10, thousandCoins * 0.01);
+        base *= (1 + bonusPercent);
+    }
+    
+    // Нестабільна економіка х2
+    base *= econMultiplierPassive;
+    
+    return base.toFixed(1);
+}
+
+// ІНІЦІАЛІЗАЦІЯ І ОНОВЛЕННЯ UI
+function updateUI() {
+    document.getElementById('coinsCount').innerText = Math.floor(gameState.coins);
+    document.getElementById('clickPowerText').innerText = getClickPower();
+    document.getElementById('passiveIncomeText').innerText = getPassiveIncome();
+    document.getElementById('fingerDamageText').innerText = getFingerTotalDamage();
+    
+    // Кнопки покращень
+    let upCost = 10 * Math.pow(1.5, gameState.clickUpgradeLevel);
+    document.getElementById('upgradeCost').innerText = Math.floor(upCost);
+    document.getElementById('buyUpgradeBtn').disabled = gameState.coins < upCost;
+    
+    let wCost = 100 * Math.pow(1.3, gameState.workers);
+    document.getElementById('workerCostText').innerText = Math.floor(wCost);
+    document.getElementById('workerCountText').innerText = gameState.workers;
+    document.getElementById('buyWorkerBtn').disabled = gameState.coins < wCost;
+    
+    let fCost = 1500 * Math.pow(2, gameState.fingerPurchasedCount);
+    document.getElementById('fingerCost').innerText = Math.floor(fCost);
+    document.getElementById('fingerBonusText').innerText = getFingerBonusPerKill() + (gameState.fingerPurchasedCount > 0 ? 5 : 0);
+    document.getElementById('buyFingerBtn').disabled = gameState.coins < fCost;
+    
+    document.getElementById('buyCasinoBtn').disabled = gameState.hasCasino || gameState.coins < 3000;
+    if (gameState.hasCasino) document.getElementById('buyCasinoBtn').innerText = 'Куплено';
+    
+    document.getElementById('buyEconBtn').disabled = gameState.hasEcon || gameState.coins < 5000;
+    if (gameState.hasEcon) document.getElementById('buyEconBtn').innerText = 'Куплено';
+
+    // Здібності
+    if (gameState.fingerPurchasedCount > 0) {
+        document.getElementById('fingerAbilityBtn').classList.remove('hidden');
+    }
+    if (gameState.hasCasino) {
+        document.getElementById('casinoAbilityBtn').classList.remove('hidden');
+    }
+
+    // ХП Моба
+    document.getElementById('hpText').innerText = `${gameState.mobCurrentHp} / ${gameState.mobMaxHp}`;
+    let hpPercent = Math.max(0, (gameState.mobCurrentHp / gameState.mobMaxHp) * 100);
+    document.getElementById('hpBarFill').style.width = hpPercent + '%';
+
+    renderBuffsMenu();
+    renderAchievementsMenu();
+    checkAchievements();
+}
+
+// КЛІК ПО МОБУ
+document.getElementById('clickBtn').addEventListener('click', () => {
+    gameState.totalClicks++;
+    playSound(sounds.click);
+    
+    let dmg = getClickPower();
+    dealDamageToMob(dmg, false);
+    
+    // Золотий палець
+    if (gameState.buffs.goldFinger && gameState.totalClicks % 100 === 0) {
+        let bonus = getClickPower() * 10;
+        addCoins(bonus);
+    }
+    
     updateUI();
-    saveProgress();
 });
 
-// --- Купівлі ---
-buyUpgradeBtn.addEventListener('click', () => {
-    if (coins >= upgradeCost) {
-        coins -= Math.floor(upgradeCost);
-        clickPower += 1;
-        upgradeCost *= 1.5;
-        updateUI();
-        saveProgress();
-    }
-});
-
-// Купівля Батрачка (можна купувати безліч разів)
-buyWorkerBtn.addEventListener('click', () => {
-    if (coins >= workerCost) {
-        coins -= Math.floor(workerCost);
-        workerCount += 1;
-        workerCost *= 1.5; // Збільшення ціни наступного батрачка
-        updateUI();
-        saveProgress();
-    }
-});
-
-// Пасивний дохід Батрачка
-setInterval(() => {
-    if (workerCount > 0) {
-        const damage = workerCount * 1;
-        coins += damage;
-        damageMob(damage);
-        updateUI();
-        saveProgress();
-    }
-}, 1500);
-
-// Купівля Фінгер Смерті
-buyFingerBtn.addEventListener('click', () => {
-    if (coins >= fingerCost) {
-        coins -= Math.floor(fingerCost);
-        
-        if (fingerLevel === 0) {
-            fingerLevel = 1;
-        } else {
-            fingerLevel += 1;
-            fingerKillMultiplier += 1;
+function dealDamageToMob(dmg, isFingerKill = false) {
+    gameState.mobCurrentHp -= dmg;
+    if (gameState.mobCurrentHp <= 0) {
+        // Моб помер
+        gameState.totalMobKills++;
+        if (isFingerKill) {
+            gameState.fingerKills++;
         }
         
-        fingerCost *= 2;
+        // Резня: Вбити 100 мобів -> 10% хп моба у вигляді монет
+        if (gameState.achievements.slaughter) {
+            addCoins(gameState.mobMaxHp * 0.10);
+        }
+        
+        // Новий моб
+        gameState.mobMaxHp = Math.floor(10 * Math.pow(1.15, gameState.totalMobKills));
+        gameState.mobCurrentHp = gameState.mobMaxHp;
+    }
+}
+
+function addCoins(amount) {
+    // Монетний магніт
+    if (gameState.buffs.magnetLevel > 0) {
+        let chance = gameState.buffs.magnetLevel * 0.01;
+        if (Math.random() < chance) {
+            amount *= 2;
+        }
+    }
+    gameState.coins += amount;
+}
+
+// КУПІВЛЯ АПГРЕЙДІВ
+document.getElementById('buyUpgradeBtn').addEventListener('click', () => {
+    let cost = 10 * Math.pow(1.5, gameState.clickUpgradeLevel);
+    if (gameState.coins >= cost) {
+        gameState.coins -= cost;
+        gameState.clickUpgradeLevel++;
         updateUI();
-        saveProgress();
     }
 });
 
-// Активація Здібності
-fingerAbilityBtn.addEventListener('click', () => {
-    if (!isFingerReady || fingerLevel === 0) return;
+document.getElementById('buyWorkerBtn').addEventListener('click', () => {
+    let cost = 100 * Math.pow(1.3, gameState.workers);
+    if (gameState.coins >= cost) {
+        gameState.coins -= cost;
+        gameState.workers++;
+        updateUI();
+    }
+});
 
-    const totalDamage = (2 * clickPower) + fingerKillBonus;
-    coins += totalDamage;
-    damageMob(totalDamage);
+document.getElementById('buyFingerBtn').addEventListener('click', () => {
+    let cost = 1500 * Math.pow(2, gameState.fingerPurchasedCount);
+    if (gameState.coins >= cost) {
+        gameState.coins -= cost;
+        gameState.fingerPurchasedCount++;
+        updateUI();
+    }
+});
 
-    isFingerReady = false;
-    fingerAbilityBtn.disabled = true;
-    let timeLeft = 10;
-    fingerCooldownText.textContent = `${timeLeft}s`;
+document.getElementById('buyCasinoBtn').addEventListener('click', () => {
+    if (gameState.coins >= 3000 && !gameState.hasCasino) {
+        gameState.coins -= 3000;
+        gameState.hasCasino = true;
+        updateUI();
+    }
+});
 
-    fingerCooldownTimer = setInterval(() => {
-        timeLeft--;
-        if (timeLeft <= 0) {
-            clearInterval(fingerCooldownTimer);
-            isFingerReady = true;
-            fingerAbilityBtn.disabled = false;
-            fingerCooldownText.textContent = "ГОТОВО";
+document.getElementById('buyEconBtn').addEventListener('click', () => {
+    if (gameState.coins >= 5000 && !gameState.hasEcon) {
+        gameState.coins -= 5000;
+        gameState.hasEcon = true;
+        startEconEvents();
+        updateUI();
+    }
+});
+
+// ЗДІБНІСТЬ: ФІНГЕР СМЕРТІ
+document.getElementById('fingerAbilityBtn').addEventListener('click', () => {
+    if (gameState.fingerCooldownActive) return;
+    
+    playSound(sounds.finger);
+    
+    let totalDmg = getFingerTotalDamage();
+    dealDamageToMob(totalDmg, true); // Наносить шкоду і якщо вбиває — зараховує як FingerKill
+    
+    // Кулдаун (30 сек за замовчуванням, зі скидкою від ачивки "Час це гроші" -1 сек)
+    let cooldownSec = 30;
+    if (gameState.achievements.timeIsMoney) cooldownSec -= 1;
+    
+    startCooldown('fingerAbilityBtn', 'fingerCooldown', cooldownSec, () => {
+        gameState.fingerCooldownActive = false;
+    });
+    gameState.fingerCooldownActive = true;
+    updateUI();
+});
+
+function startCooldown(btnId, textId, seconds, onComplete) {
+    let btn = document.getElementById(btnId);
+    let text = document.getElementById(textId);
+    btn.disabled = true;
+    
+    let remaining = seconds;
+    text.innerText = `${remaining}с`;
+    
+    let timer = setInterval(() => {
+        remaining--;
+        if (remaining > 0) {
+            text.innerText = `${remaining}с`;
         } else {
-            fingerCooldownText.textContent = `${timeLeft}s`;
+            clearInterval(timer);
+            btn.disabled = false;
+            text.innerText = 'ГОТОВО';
+            onComplete();
         }
     }, 1000);
+}
 
-    updateUI();
-    saveProgress();
+// ЗДІБНІСТЬ: КАЗІНО
+document.getElementById('casinoAbilityBtn').addEventListener('click', () => {
+    if (gameState.casinoCooldownActive) return;
+    
+    document.getElementById('maxBetText').innerText = Math.floor(gameState.coins);
+    document.getElementById('casinoBetInput').max = Math.floor(gameState.coins);
+    document.getElementById('casinoStatus').innerText = '';
+    document.getElementById('casinoSlotMachine').classList.add('hidden');
+    document.getElementById('casinoModal').classList.remove('hidden');
 });
 
-// --- Музика ---
-function renderMusicMenu() {
-    musicListContainer.innerHTML = '';
-    
-    musicList.forEach(track => {
-        const isPurchased = purchasedMusic.includes(track.id);
-        const isPlaying = currentMusicId === track.id && !isMusicMuted;
+document.getElementById('closeCasinoModal').addEventListener('click', () => {
+    document.getElementById('casinoModal').classList.add('hidden');
+});
 
-        const item = document.createElement('div');
-        item.className = 'shop-item';
-        item.innerHTML = `
+function playCasinoBet(colorType) {
+    let bet = parseInt(document.getElementById('casinoBetInput').value) || 0;
+    if (bet <= 0 || bet > gameState.coins) {
+        document.getElementById('casinoStatus').innerText = 'Некоректна ставка!';
+        return;
+    }
+    
+    gameState.coins -= bet;
+    updateUI();
+    
+    playSound(sounds.casino);
+    
+    // Показати анімацію слотів
+    let slotMachine = document.getElementById('casinoSlotMachine');
+    slotMachine.classList.remove('hidden');
+    document.getElementById('casinoStatus').innerText = 'Крутимо слоти...';
+    
+    // Заблокувати кнопки
+    setCasinoButtonsDisabled(true);
+    
+    setTimeout(() => {
+        slotMachine.classList.add('hidden');
+        setCasinoButtonsDisabled(false);
+        
+        let win = false;
+        let winAmount = 0;
+        
+        if (colorType === 'red' || colorType === 'black') {
+            // Шанс 1 до 5 (20%)
+            let roll = Math.random();
+            if (roll < 0.2) {
+                win = true;
+                winAmount = bet * 2;
+            }
+        } else if (colorType === 'green') {
+            // Шанс 1 до 20 (5%)
+            let roll = Math.random();
+            if (roll < 0.05) {
+                win = true;
+                winAmount = bet * 15;
+            }
+        }
+        
+        if (win) {
+            gameState.coins += winAmount;
+            document.getElementById('casinoStatus').innerText = `ВИГРАШ! +${winAmount} монет!`;
+        } else {
+            document.getElementById('casinoStatus').innerText = `Програш! Спробуй ще раз.`;
+        }
+        
+        updateUI();
+        
+        // Закрити модалку через 1.5 сек та запустити кулдаун 30 сек
+        setTimeout(() => {
+            document.getElementById('casinoModal').classList.add('hidden');
+            let cooldownSec = 30;
+            if (gameState.achievements.timeIsMoney) cooldownSec -= 1;
+            
+            startCooldown('casinoAbilityBtn', 'casinoCooldown', cooldownSec, () => {
+                gameState.casinoCooldownActive = false;
+            });
+            gameState.casinoCooldownActive = true;
+        }, 1500);
+        
+    }, 3000);
+}
+
+function setCasinoButtonsDisabled(disabled) {
+    document.getElementById('betRedBtn').disabled = disabled;
+    document.getElementById('betBlackBtn').disabled = disabled;
+    document.getElementById('betGreenBtn').disabled = disabled;
+}
+
+document.getElementById('betRedBtn').addEventListener('click', () => playCasinoBet('red'));
+document.getElementById('betBlackBtn').addEventListener('click', () => playCasinoBet('black'));
+document.getElementById('betGreenBtn').addEventListener('click', () => playCasinoBet('green'));
+
+// НЕСТАБІЛЬНА ЕКОНОМІКА
+function startEconEvents() {
+    setInterval(() => {
+        if (!gameState.hasEcon) return;
+        
+        let eventRoll = Math.floor(Math.random() * 3);
+        let overlay = document.getElementById('eventOverlay');
+        let text = document.getElementById('eventText');
+        
+        overlay.classList.remove('hidden');
+        
+        if (eventRoll === 0) {
+            // х2 весь пасивний дохід на 10 сек
+            text.innerText = 'РЕАЛЬНА БАТРАЧКА';
+            playSound(sounds.realbatr);
+            econMultiplierPassive = 2;
+            setTimeout(() => {
+                econMultiplierPassive = 1;
+                updateUI();
+            }, 10000);
+        } else if (eventRoll === 1) {
+            // +100*Силу Кліку монет
+            text.innerText = 'БЕРИ БАУНТИ';
+            playSound(sounds.bounty);
+            addCoins(100 * getClickPower());
+        } else {
+            // х5 Сила клік на 10 сек (наприклад)
+            text.innerText = 'ЖМИИИИ РОДНОЙ';
+            playSound(sounds.fatclick);
+            econClickBonusTemp = 5;
+            setTimeout(() => {
+                econClickBonusTemp = 1;
+                updateUI();
+            }, 10000);
+        }
+        
+        updateUI();
+        
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+        }, 3000);
+        
+    }, 60000); // Раз на хвилину
+}
+
+// МЕНЮ БАФИКІВ
+const buffsConfig = [
+    {
+        id: 'magnet',
+        title: 'Монетний магніт',
+        desc: 'Кожна монета має 1% шанс принести ще одну монету (макс 5%).',
+        getCost: () => 300 * Math.pow(2.5, gameState.buffs.magnetLevel),
+        canBuy: () => gameState.buffs.magnetLevel < 5,
+        buy: () => gameState.buffs.magnetLevel++
+    },
+    {
+        id: 'greed',
+        title: 'Жадібність',
+        desc: '+1% доходу за кожні 1000 монет на рахунку (до +50%).',
+        getCost: () => 1000 * Math.pow(2, gameState.buffs.greedLevel),
+        canBuy: () => gameState.buffs.greedLevel < 50,
+        buy: () => gameState.buffs.greedLevel++
+    },
+    {
+        id: 'goldFinger',
+        title: 'Золотий палець',
+        desc: 'Кожні 100 натискань дають бонусну пачку монет (Сила кліка * 10).',
+        getCost: () => 1500,
+        canBuy: () => !gameState.buffs.goldFinger,
+        buy: () => gameState.buffs.goldFinger = true
+    },
+    {
+        id: 'moneyMakesMoney',
+        title: 'Гроші роблять гроші',
+        desc: '+0,5% за кожен купиний апгрейд та баф.',
+        getCost: () => 3000,
+        canBuy: () => !gameState.buffs.moneyMakesMoney,
+        buy: () => gameState.buffs.moneyMakesMoney = true
+    },
+    {
+        id: 'stonemason',
+        title: 'Камінщік',
+        desc: 'Кожні 1000 кліків назавжди збільшують силу кліку на +1%.',
+        getCost: () => 3500,
+        canBuy: () => !gameState.buffs.stonemason,
+        buy: () => gameState.buffs.stonemason = true
+    }
+];
+
+function renderBuffsMenu() {
+    let container = document.getElementById('buffsList');
+    container.innerHTML = '';
+    
+    buffsConfig.forEach(b => {
+        let div = document.createElement('div');
+        div.className = 'shop-item';
+        
+        let cost = b.getCost();
+        let available = b.canBuy();
+        
+        div.innerHTML = `
+            <img src="bafftest.img" alt="Buff" class="buff-img" onerror="this.src='https://via.placeholder.com/40'">
             <div class="item-info">
-                <h3>${track.title} ${isPlaying ? '▶️' : ''}</h3>
-                <p>Ціна: ${track.cost} мон.</p>
+                <h3>${b.title}</h3>
+                <p>${b.desc}</p>
             </div>
-            <button class="buy-btn" ${!isPurchased && coins < track.cost ? 'disabled' : ''}>
-                ${isPurchased ? (isPlaying ? 'Грає' : 'Увімкнути') : 'Купити'}
+            <button class="buy-btn" ${(!available || gameState.coins < cost) ? 'disabled' : ''}>
+                ${available ? `Купити (${Math.floor(cost)} мон.)` : 'МАКС/КУПЛЕНО'}
             </button>
         `;
-
-        const btn = item.querySelector('button');
-        btn.addEventListener('click', () => playOrBuyMusic(track));
-
-        musicListContainer.appendChild(item);
+        
+        let btn = div.querySelector('button');
+        if (available) {
+            btn.addEventListener('click', () => {
+                if (gameState.coins >= cost) {
+                    gameState.coins -= cost;
+                    b.buy();
+                    updateUI();
+                }
+            });
+        }
+        
+        container.appendChild(div);
     });
 }
 
-function playOrBuyMusic(track) {
-    if (!purchasedMusic.includes(track.id)) {
-        if (coins >= track.cost) {
-            coins -= track.cost;
-            purchasedMusic.push(track.id);
-            switchTrack(track);
+// МЕНЮ АЧИВОК
+const achievementsConfig = [
+    { key: 'fingerPain', title: 'Палець болить', desc: 'Зробити 500 кліків (+5% до сили кліку)' },
+    { key: 'fingerNoPain', title: 'Палець вже не болить', desc: 'Зробити 5000 кліків (+10% до сили кліку)' },
+    { key: 'capitalist', title: 'Капіталіст/Аутист', desc: 'Накопичити 10 000 монет' },
+    { key: 'fist', title: '5 пальців в кулак', desc: 'Накопичити 2000 сили Фінгер смерті (+10% до сили Фінгер)' },
+    { key: 'slaughter', title: 'Резня', desc: 'Вбити 100 мобів (10% HP моба дають монети)' },
+    { key: 'famousName', title: 'Його ім'я знав кожен', desc: 'Вбити 1500 мобів (Вбивство моба збільшує силу кліку на +1)' },
+    { key: 'music', title: 'ТунтунтунтунтунТСАХУР', desc: 'Купити першу музику в меню музика' },
+    { key: 'timeIsMoney', title: 'Час - це гроші', desc: 'Сумарно прочекати 5 хвилин перезарядки (-1с кулдауну)' },
+    { key: 'adhd', title: 'СДВГ', desc: 'Сумарно прочекати 10 хвилин перезарядки (+1 монета/сек під час КД)' }
+];
+
+function checkAchievements() {
+    if (!gameState.achievements.fingerPain && gameState.totalClicks >= 500) {
+        gameState.achievements.fingerPain = true;
+    }
+    if (!gameState.achievements.fingerNoPain && gameState.totalClicks >= 5000) {
+        gameState.achievements.fingerNoPain = true;
+    }
+    if (!gameState.achievements.capitalist && gameState.coins >= 10000) {
+        gameState.achievements.capitalist = true;
+    }
+    if (!gameState.achievements.fist && getFingerTotalDamage() >= 2000) {
+        gameState.achievements.fist = true;
+    }
+    if (!gameState.achievements.slaughter && gameState.totalMobKills >= 100) {
+        gameState.achievements.slaughter = true;
+    }
+    if (!gameState.achievements.famousName && gameState.totalMobKills >= 1500) {
+        gameState.achievements.famousName = true;
+    }
+    if (!gameState.achievements.timeIsMoney && gameState.abilityCooldownTimeTotal >= 300) {
+        gameState.achievements.timeIsMoney = true;
+    }
+    if (!gameState.achievements.adhd && gameState.abilityCooldownTimeTotal >= 600) {
+        gameState.achievements.adhd = true;
+    }
+}
+
+function renderAchievementsMenu() {
+    let container = document.getElementById('achievementsList');
+    container.innerHTML = '';
+    
+    achievementsConfig.forEach(ach => {
+        let isUnlocked = gameState.achievements[ach.key];
+        let div = document.createElement('div');
+        div.className = `achievement-item ${isUnlocked ? 'unlocked' : ''}`;
+        
+        div.innerHTML = `
+            <div class="achievement-header">
+                <span class="achievement-title">${ach.title}</span>
+                <span class="achievement-status">${isUnlocked ? 'ВИКОНАНО' : 'ЗАБЛОКОВАНО'}</span>
+            </div>
+            <div class="achievement-desc">${ach.desc}</div>
+        `;
+        
+        container.appendChild(div);
+    });
+}
+
+// ПЕРІОДИЧНІ СЕКУНДНІ ОНОВЛЕННЯ (Пасивний дохід + Трекінг КД абілок)
+setInterval(() => {
+    // Пасивний дохід
+    let passive = parseFloat(getPassiveIncome());
+    if (passive > 0) {
+        addCoins(passive);
+    }
+    
+    // Перевірка активності кулдаунів для ачивок "Час це гроші" та "СДВГ"
+    let isAnyCooldownActive = gameState.fingerCooldownActive || gameState.casinoCooldownActive;
+    if (isAnyCooldownActive) {
+        gameState.abilityCooldownTimeTotal++;
+        
+        // СДВГ: +1 монета кожну секунду під час КД
+        if (gameState.achievements.adhd) {
+            addCoins(1);
         }
-    } else {
-        switchTrack(track);
     }
+    
     updateUI();
-    saveProgress();
-}
+}, 1000);
 
-function switchTrack(track) {
-    currentMusicId = track.id;
-    isMusicMuted = false;
-    bgMusic.src = track.file;
-    bgMusic.play().catch(() => {});
-}
-
-offMusicBtn.addEventListener('click', () => {
-    if (!hasOffMusicBtn && coins >= 10000) {
-        coins -= 10000;
-        hasOffMusicBtn = true;
-        isMusicMuted = true;
-        bgMusic.pause();
-    } else if (hasOffMusicBtn) {
-        isMusicMuted = !isMusicMuted;
-        if (isMusicMuted) {
-            bgMusic.pause();
-        } else if (currentMusicId) {
-            bgMusic.play().catch(() => {});
+// НАВІГАЦІЯ ТА МЕНЮ (Toggle)
+function toggleMenu(menuId) {
+    let menus = ['shopMenu', 'buffsMenu', 'achievementsMenu', 'musicMenu', 'storiesMenu'];
+    menus.forEach(m => {
+        let el = document.getElementById(m);
+        if (m === menuId) {
+            el.classList.toggle('hidden');
+        } else {
+            el.classList.add('hidden');
         }
-    }
-    updateUI();
-    saveProgress();
-});
-
-// --- Історії ---
-buyHatStoryBtn.addEventListener('click', () => {
-    if (!purchasedHatStory && coins >= 1000) {
-        coins -= 1000;
-        purchasedHatStory = true;
-        openStoryModal();
-    } else if (purchasedHatStory) {
-        openStoryModal();
-    }
-    updateUI();
-    saveProgress();
-});
-
-function openStoryModal() {
-    storyTitle.textContent = "Легенда про Піратську Шляпу";
-    storyText.textContent = "Колись давно, у найглибших водах піксельного океану, ходила легенда про Шляпу Старого Капітана. Кажуть, той, хто одягне її, отримає не лише захист від солоних бризок, а й нескінченний потік монет від кожного поверженого морського чудовиська. Старий капітан сховав цю шляпу в скрині, яку охороняють самі злісні моби. Тепер ця історія належить тобі!";
-    storyModal.classList.remove('hidden');
+    });
 }
 
-closeStoryModal.addEventListener('click', () => {
-    storyModal.classList.add('hidden');
+document.getElementById('shopToggleBtn').addEventListener('click', () => toggleMenu('shopMenu'));
+document.getElementById('buffsToggleBtn').addEventListener('click', () => toggleMenu('buffsMenu'));
+document.getElementById('achievementsToggleBtn').addEventListener('click', () => toggleMenu('achievementsMenu'));
+document.getElementById('musicToggleBtn').addEventListener('click', () => toggleMenu('musicMenu'));
+document.getElementById('storiesToggleBtn').addEventListener('click', () => toggleMenu('storiesMenu'));
+
+// МЕНЮ МУЗИКИ ВІДТВОРЕННЯ
+document.getElementById('musicToggleBtn').addEventListener('click', () => {
+    let musicList = document.getElementById('musicList');
+    musicList.innerHTML = '';
+    
+    const tracks = ['track1.mp3', 'track2.mp3', 'track3.mp3'];
+    tracks.forEach((tr, index) => {
+        let div = document.createElement('div');
+        div.className = 'shop-item';
+        div.innerHTML = `
+            <div class="item-info">
+                <h3>Музичний трек ${index + 1}</h3>
+            </div>
+            <button class="buy-btn">Купити (100 мон.)</button>
+        `;
+        div.querySelector('button').addEventListener('click', () => {
+            if (gameState.coins >= 100) {
+                gameState.coins -= 100;
+                sounds.bg.src = tr;
+                sounds.bg.play().catch(e=>console.log(e));
+                gameState.achievements.music = true;
+                updateUI();
+            }
+        });
+        musicList.appendChild(div);
+    });
 });
 
-// Скинути прогрес
-resetProgressBtn.addEventListener('click', () => {
-    if (confirm("Ви дійсно хочете повністю скинути весь прогрес?")) {
+// СКИДАННЯ ПРОГРЕСУ
+document.getElementById('resetProgressBtn').addEventListener('click', () => {
+    if (confirm('Ви впевнені, що хочете скинути весь прогрес?')) {
         localStorage.clear();
         location.reload();
     }
 });
 
-// Старт
-spawnRandomMob();
+// СТАРТОВИЙ UI
 updateUI();
-
-if (currentMusicId && !isMusicMuted) {
-    const track = musicList.find(t => t.id === currentMusicId);
-    if (track) {
-        bgMusic.src = track.file;
-    }
-}
