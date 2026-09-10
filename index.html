@@ -17,10 +17,13 @@
             <div class="stats-container">
                 <div>Сила кліку: <span id="clickPowerText">1</span></div>
                 <div>Пасивний: <span id="passiveIncomeText">0</span>/сек</div>
+                <div>Фінгер: <span id="fingerDamageText">0</span></div>
             </div>
         </div>
         <div class="nav-buttons">
             <button id="shopToggleBtn" class="nav-btn">⚙️ Покращення</button>
+            <button id="buffsToggleBtn" class="nav-btn">⚡ Бафики</button>
+            <button id="achievementsToggleBtn" class="nav-btn">🏆 Ачивки</button>
             <button id="musicToggleBtn" class="nav-btn">🎵 Музика</button>
             <button id="storiesToggleBtn" class="nav-btn">📜 Історії</button>
             <button id="resetProgressBtn" class="reset-btn">🗑️ Скинути</button>
@@ -54,15 +57,47 @@
         <div class="shop-item">
             <div class="item-info">
                 <h3>Фінгер смерті</h3>
-                <p>Активація здібності (Бонус: +<span id="fingerBonusText">20</span>)</p>
+                <p>Активація здібності (Бонус за вбитого цим пальцем: +<span id="fingerBonusText">20</span>)</p>
             </div>
             <button id="buyFingerBtn" class="buy-btn" disabled>
                 Купити (<span id="fingerCost">1500</span> мон.)
             </button>
         </div>
+
+        <div class="shop-item">
+            <div class="item-info">
+                <h3>Казіно</h3>
+                <p>Відкриває можливість випробувати удачу</p>
+            </div>
+            <button id="buyCasinoBtn" class="buy-btn" disabled>
+                Купити (3000 мон.)
+            </button>
+        </div>
+
+        <div class="shop-item">
+            <div class="item-info">
+                <h3>Нестабільна економіка</h3>
+                <p>Випадкові вигідні події щохвилини</p>
+            </div>
+            <button id="buyEconBtn" class="buy-btn" disabled>
+                Купити (5000 мон.)
+            </button>
+        </div>
     </div>
 
-    <!-- 2. Меню музики -->
+    <!-- 2. Меню Бафиків -->
+    <div id="buffsMenu" class="dropdown-menu hidden">
+        <h2>Бафики</h2>
+        <div id="buffsList"></div>
+    </div>
+
+    <!-- 3. Меню Ачивок -->
+    <div id="achievementsMenu" class="dropdown-menu hidden">
+        <h2>Ачивки</h2>
+        <div id="achievementsList"></div>
+    </div>
+
+    <!-- 4. Меню музики -->
     <div id="musicMenu" class="dropdown-menu hidden">
         <h2>Музичне меню</h2>
         <div id="musicList"></div>
@@ -71,7 +106,7 @@
         </button>
     </div>
 
-    <!-- 3. Меню історій -->
+    <!-- 5. Меню історій -->
     <div id="storiesMenu" class="dropdown-menu hidden">
         <h2>Магазин історій</h2>
         <div class="shop-item">
@@ -85,7 +120,7 @@
         </div>
     </div>
 
-    <!-- Модальне вікно -->
+    <!-- Модальне вікно для історій -->
     <div id="storyModal" class="modal hidden">
         <div class="modal-content">
             <span id="closeStoryModal" class="close-btn">&times;</span>
@@ -94,11 +129,57 @@
         </div>
     </div>
 
+    <!-- Модальне вікно для Казіка -->
+    <div id="casinoModal" class="modal hidden">
+        <div class="modal-content casino-content">
+            <span id="closeCasinoModal" class="close-btn">&times;</span>
+            <h2>🎰 Казино</h2>
+            <div class="casino-body">
+                <label for="casinoBetInput">Ставка (макс. <span id="maxBetText">0</span>):</label>
+                <input type="number" id="casinoBetInput" min="1" value="100">
+                
+                <div class="casino-buttons">
+                    <div class="casino-btn-wrapper">
+                        <button id="betRedBtn" class="casino-btn btn-red">Червона (x2)</button>
+                        <span class="btn-label">Лівий колір</span>
+                    </div>
+                    <div class="casino-btn-wrapper">
+                        <button id="betBlackBtn" class="casino-btn btn-black">Чорна (x2)</button>
+                        <span class="btn-label">Середній колір</span>
+                    </div>
+                    <div class="casino-btn-wrapper">
+                        <button id="betGreenBtn" class="casino-btn btn-green">Зелена (x15)</button>
+                        <span class="btn-label">Правий колір</span>
+                    </div>
+                </div>
+
+                <!-- Анімація слотів -->
+                <div id="casinoSlotMachine" class="slot-machine hidden">
+                    <div class="slot-track" id="slotTrack">
+                        <div class="slot-block block-red"></div>
+                        <div class="slot-block block-black"></div>
+                        <div class="slot-block block-green"></div>
+                        <div class="slot-block block-red"></div>
+                        <div class="slot-block block-black"></div>
+                        <div class="slot-block block-green"></div>
+                    </div>
+                </div>
+
+                <div id="casinoStatus" class="casino-status"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Оверлей сповіщення про економічні події -->
+    <div id="eventOverlay" class="event-overlay hidden">
+        <div id="eventText" class="event-text"></div>
+    </div>
+
     <!-- Центральна зона -->
     <main class="click-area">
         <div class="mob-container">
             <h3 id="mobName">Істота</h3>
-            <img id="clickBtn" src="clickStartImg.jfif" alt="Моб" class="click-img">
+            <img id="clickBtn" src="clickStartImg.jpg" alt="Моб" class="click-img">
             
             <div class="hp-bar-container">
                 <div id="hpBarFill" class="hp-bar-fill"></div>
@@ -110,12 +191,23 @@
     <!-- Панель здібностей -->
     <footer class="abilities-bar">
         <button id="fingerAbilityBtn" class="ability-btn hidden">
-            <img src="finger.jfif" alt="Finger" class="ability-img" onerror="this.src='https://via.placeholder.com/40'">
+            <img src="finger.jpg" alt="Finger" class="ability-img" onerror="this.src='https://via.placeholder.com/40'">
             <span id="fingerCooldown">ГОТОВО</span>
+        </button>
+
+        <button id="casinoAbilityBtn" class="ability-btn hidden">
+            <img src="casino.jpg" alt="Casino" class="ability-img" onerror="this.src='https://via.placeholder.com/40'">
+            <span id="casinoCooldown">ГОТОВО</span>
         </button>
     </footer>
 
+    <!-- Аудіо елементи -->
     <audio id="clickSound" src="clickStandartSound.mp3" preload="auto"></audio>
+    <audio id="fingerSound" src="finger.mp3" preload="auto"></audio>
+    <audio id="casinoSound" src="casino.mp3" preload="auto"></audio>
+    <audio id="realbatrSound" src="realbatr.mp3" preload="auto"></audio>
+    <audio id="bountySound" src="bounty.mp3" preload="auto"></audio>
+    <audio id="fatclickSound" src="fatclick.mp3" preload="auto"></audio>
     <audio id="bgMusic" loop></audio>
 
     <script src="script.js"></script>
