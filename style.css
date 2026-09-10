@@ -19,7 +19,7 @@ body {
 /* Верхня панель */
 .top-bar {
     width: 100%;
-    max-width: 650px;
+    max-width: 800px;
     padding: 12px 15px;
     display: flex;
     justify-content: space-between;
@@ -56,6 +56,7 @@ body {
 .nav-buttons {
     display: flex;
     gap: 5px;
+    flex-wrap: wrap;
 }
 
 .nav-btn {
@@ -63,7 +64,7 @@ body {
     color: white;
     border: none;
     padding: 8px 10px;
-    font-size: 13px;
+    font-size: 12px;
     border-radius: 8px;
     cursor: pointer;
 }
@@ -77,7 +78,7 @@ body {
     color: white;
     border: none;
     padding: 8px 10px;
-    font-size: 13px;
+    font-size: 12px;
     border-radius: 8px;
     cursor: pointer;
 }
@@ -91,7 +92,7 @@ body {
     position: absolute;
     top: 75px;
     width: 90%;
-    max-width: 450px;
+    max-width: 500px;
     background: #16213e;
     border: 2px solid #0f3460;
     border-radius: 12px;
@@ -120,6 +121,18 @@ body {
     padding: 10px;
     border-radius: 8px;
     margin-bottom: 8px;
+    gap: 10px;
+}
+
+.buff-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.item-info {
+    flex: 1;
 }
 
 .item-info h3 {
@@ -139,6 +152,7 @@ body {
     border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
+    font-size: 12px;
 }
 
 .buy-btn:disabled {
@@ -151,6 +165,49 @@ body {
     width: 100%;
     margin-top: 10px;
     background: #c0392b;
+}
+
+/* Ачивки стилі */
+.achievement-item {
+    background: #0f3460;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border-left: 4px solid #777;
+}
+
+.achievement-item.unlocked {
+    border-left-color: #f1c40f;
+    background: #1a3c61;
+}
+
+.achievement-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.achievement-title {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.achievement-status {
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #333;
+}
+
+.achievement-item.unlocked .achievement-status {
+    background: #f1c40f;
+    color: #000;
+}
+
+.achievement-desc {
+    font-size: 12px;
+    color: #ccc;
+    margin-top: 4px;
 }
 
 /* Модальне вікно */
@@ -197,6 +254,132 @@ body {
     overflow-y: auto;
     font-size: 14px;
     color: #ddd;
+}
+
+/* Казино вікно */
+.casino-body {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.casino-body input[type="number"] {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #0f3460;
+    background: #0f3460;
+    color: white;
+    font-size: 16px;
+}
+
+.casino-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.casino-btn-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.casino-btn {
+    width: 100%;
+    padding: 12px 5px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-red { background: #e74c3c; }
+.btn-black { background: #2c3e50; }
+.btn-green { background: #27ae60; }
+
+.btn-label {
+    font-size: 11px;
+    color: #aaa;
+    margin-top: 4px;
+}
+
+/* Анімація слотів */
+.slot-machine {
+    height: 50px;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    border: 2px solid #f1c40f;
+}
+
+.slot-track {
+    display: flex;
+    height: 100%;
+    width: 200%;
+    animation: spinSlots 0.3s linear infinite;
+}
+
+.slot-track.hidden {
+    display: none;
+}
+
+.slot-block {
+    flex: 1;
+    height: 100%;
+}
+
+.block-red { background: #e74c3c; }
+.block-black { background: #2c3e50; }
+.block-green { background: #27ae60; }
+
+@keyframes spinSlots {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.casino-status {
+    text-align: center;
+    font-weight: bold;
+    min-height: 20px;
+}
+
+/* Оверлей подій */
+.event-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    pointer-events: none;
+}
+
+.event-overlay.hidden {
+    display: none;
+}
+
+.event-text {
+    font-size: 40px;
+    font-weight: bold;
+    color: #f1c40f;
+    text-align: center;
+    text-shadow: 0 0 20px #e94560, 0 0 40px #f1c40f;
+    animation: popText 0.5s ease-out;
+    padding: 20px;
+}
+
+@keyframes popText {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
 /* Зона кліку та Моб */
@@ -264,6 +447,8 @@ body {
 /* Здібності */
 .abilities-bar {
     padding: 15px;
+    display: flex;
+    gap: 15px;
 }
 
 .ability-btn {
