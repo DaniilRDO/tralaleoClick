@@ -8,7 +8,7 @@ let gameState = {
     clickUpgradeLevel: 0,
     
     // Батрачки (пасивний дохід)
-    workers: 0,
+    workers: 1,
     
     // Фінгер смерті
     fingerPurchasedCount: 0, // Скільки разів купляли
