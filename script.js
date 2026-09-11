@@ -652,7 +652,7 @@ document.getElementById('musicToggleBtn').addEventListener('click', () => {
     let musicList = document.getElementById('musicList');
     musicList.innerHTML = '';
     
-    const tracks = ['track1.mp3', 'track2.mp3', 'track3.mp3'];
+    const tracks = ['tuntunTsahur.mp3', 'freak.ogg', 'family.mp3'];
     tracks.forEach((tr, index) => {
         let div = document.createElement('div');
         div.className = 'shop-item';
