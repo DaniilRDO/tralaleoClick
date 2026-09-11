@@ -57,10 +57,10 @@
         <div class="shop-item">
             <div class="item-info">
                 <h3>Фінгер смерті</h3>
-                <p>Активація здібності (Бонус за вбитого цим пальцем: +<span id="fingerBonusText">20</span>)</p>
+                <p>Активація здібності (Бонус за вбитого цим пальцем: +<span id="BonusText">20</span>)</p>
             </div>
-            <button id="buyFingerBtn" class="buy-btn" disabled>
-                Купити (<span id="fingerCost">1500</span> мон.)
+            <button id="buyBtn" class="buy-btn" disabled>
+                Купити (<span id="Cost">1500</span> мон.)
             </button>
         </div>
 
@@ -190,7 +190,7 @@
 
     <!-- Панель здібностей -->
     <footer class="abilities-bar">
-        <button id="fingerAbilityBtn" class="ability-btn hidden">
+        <button id="AbilityBtn" class="ability-btn hidden">
             <img src="finger.jfif" alt="Finger" class="ability-img" onerror="this.src='https://via.placeholder.com/40'">
             <span id="fingerCooldown">ГОТОВО</span>
         </button>
@@ -203,7 +203,7 @@
 
     <!-- Аудіо елементи -->
     <audio id="clickSound" src="clickStandartSound.mp3" preload="auto"></audio>
-    <audio id="fingerSound" src="finger.mp3" preload="auto"></audio>
+    <audio id="fingerSound" src="finger.ogg" preload="auto"></audio>
     <audio id="casinoSound" src="casino.mp3" preload="auto"></audio>
     <audio id="realbatrSound" src="realbatr.mp3" preload="auto"></audio>
     <audio id="bountySound" src="bounty.mp3" preload="auto"></audio>
